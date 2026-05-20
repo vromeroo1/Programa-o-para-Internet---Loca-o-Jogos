@@ -1,0 +1,298 @@
+const pool = require('../config/mysql');
+const IDAO = require('../interfaces/IDAO');
+const AppError = require('../utils/AppError');
+const { montarUpdate } = require('../utils/sql');
+
+class EmprestimoDAO extends IDAO {
+  async listar(filtros = {}) {
+    let sql = `
+      SELECT
+        e.id, e.usuario_id, u.nome AS usuario_nome, u.email AS usuario_email,
+        e.data_emprestimo, e.data_prevista_devolucao, e.data_devolucao_real,
+        CASE
+          WHEN e.status = 'ativo' AND e.data_prevista_devolucao < CURDATE() THEN 'atrasado'
+          ELSE e.status
+        END AS status,
+        e.multa, e.valor_total, e.observacoes,
+        COALESCE(SUM(i.quantidade), 0) AS total_itens
+      FROM emprestimos e
+      INNER JOIN usuarios u ON u.id = e.usuario_id
+      LEFT JOIN itens_emprestimo i ON i.emprestimo_id = e.id
+      WHERE 1 = 1
+    `;
+    const params = [];
+
+    if (filtros.status) {
+      if (filtros.status === 'atrasado') {
+        sql += " AND e.status = 'ativo' AND e.data_prevista_devolucao < CURDATE()";
+      } else {
+        sql += ' AND e.status = ?';
+        params.push(filtros.status);
+      }
+    }
+
+    if (filtros.usuario_id) {
+      sql += ' AND e.usuario_id = ?';
+      params.push(filtros.usuario_id);
+    }
+
+    if (filtros.atrasados === '1' || filtros.atrasados === true) {
+      sql += " AND e.status = 'ativo' AND e.data_prevista_devolucao < CURDATE()";
+    }
+
+    sql += `
+      GROUP BY e.id, u.nome, u.email
+      ORDER BY e.data_emprestimo DESC
+    `;
+
+    const [rows] = await pool.execute(sql, params);
+    return rows;
+  }
+
+  async buscarPorId(id) {
+    const [emprestimos] = await pool.execute(
+      `SELECT
+        e.id, e.usuario_id, u.nome AS usuario_nome, u.email AS usuario_email,
+        e.data_emprestimo, e.data_prevista_devolucao, e.data_devolucao_real,
+        CASE
+          WHEN e.status = 'ativo' AND e.data_prevista_devolucao < CURDATE() THEN 'atrasado'
+          ELSE e.status
+        END AS status,
+        e.multa, e.valor_total, e.observacoes
+       FROM emprestimos e
+       INNER JOIN usuarios u ON u.id = e.usuario_id
+       WHERE e.id = ?`,
+      [id]
+    );
+
+    const emprestimo = emprestimos[0];
+    if (!emprestimo) {
+      return null;
+    }
+
+    const [itens] = await pool.execute(
+      `SELECT
+        i.id, i.emprestimo_id, i.jogo_id, j.titulo AS jogo_titulo,
+        j.imagem AS jogo_imagem, i.quantidade, i.valor_unitario,
+        (i.quantidade * i.valor_unitario) AS subtotal
+       FROM itens_emprestimo i
+       INNER JOIN jogos j ON j.id = i.jogo_id
+       WHERE i.emprestimo_id = ?
+       ORDER BY j.titulo ASC`,
+      [id]
+    );
+
+    return { ...emprestimo, itens };
+  }
+
+  async criar(dados) {
+    const conexao = await pool.getConnection();
+
+    try {
+      await conexao.beginTransaction();
+
+      const [usuarios] = await conexao.execute(
+        'SELECT id FROM usuarios WHERE id = ?',
+        [dados.usuario_id]
+      );
+
+      if (usuarios.length === 0) {
+        throw new AppError('Usuario informado nao existe.', 404);
+      }
+
+      let valorTotal = 0;
+      const itensProcessados = [];
+
+      for (const item of dados.itens) {
+        const quantidade = Number(item.quantidade);
+        const [jogos] = await conexao.execute(
+          'SELECT id, titulo, valor_aluguel, estoque FROM jogos WHERE id = ? FOR UPDATE',
+          [item.jogo_id]
+        );
+
+        const jogo = jogos[0];
+        if (!jogo) {
+          throw new AppError(`Jogo ${item.jogo_id} nao encontrado.`, 404);
+        }
+
+        if (jogo.estoque < quantidade) {
+          throw new AppError(`Estoque insuficiente para o jogo ${jogo.titulo}.`, 422);
+        }
+
+        valorTotal += Number(jogo.valor_aluguel) * quantidade;
+        itensProcessados.push({
+          jogo_id: jogo.id,
+          quantidade,
+          valor_unitario: Number(jogo.valor_aluguel)
+        });
+      }
+
+      const [resultado] = await conexao.execute(
+        `INSERT INTO emprestimos
+         (usuario_id, data_prevista_devolucao, valor_total, observacoes)
+         VALUES (?, ?, ?, ?)`,
+        [
+          dados.usuario_id,
+          dados.data_prevista_devolucao,
+          valorTotal,
+          dados.observacoes || null
+        ]
+      );
+
+      for (const item of itensProcessados) {
+        await conexao.execute(
+          `INSERT INTO itens_emprestimo
+           (emprestimo_id, jogo_id, quantidade, valor_unitario)
+           VALUES (?, ?, ?, ?)`,
+          [resultado.insertId, item.jogo_id, item.quantidade, item.valor_unitario]
+        );
+
+        await conexao.execute(
+          `UPDATE jogos
+           SET estoque = estoque - ?
+           WHERE id = ? AND estoque >= ?`,
+          [item.quantidade, item.jogo_id, item.quantidade]
+        );
+      }
+
+      await conexao.commit();
+      return this.buscarPorId(resultado.insertId);
+    } catch (erro) {
+      await conexao.rollback();
+      throw erro;
+    } finally {
+      conexao.release();
+    }
+  }
+
+  async atualizar(id, dados) {
+    const { sets, valores } = montarUpdate(dados, [
+      'data_prevista_devolucao',
+      'status',
+      'observacoes'
+    ]);
+
+    if (sets.length === 0) {
+      return this.buscarPorId(id);
+    }
+
+    await pool.execute(
+      `UPDATE emprestimos SET ${sets.join(', ')} WHERE id = ?`,
+      [...valores, id]
+    );
+
+    return this.buscarPorId(id);
+  }
+
+  async devolver(id, regras = { multaDiaria: 2 }) {
+    const conexao = await pool.getConnection();
+
+    try {
+      await conexao.beginTransaction();
+
+      const [emprestimos] = await conexao.execute(
+        'SELECT * FROM emprestimos WHERE id = ? FOR UPDATE',
+        [id]
+      );
+      const emprestimo = emprestimos[0];
+
+      if (!emprestimo) {
+        throw new AppError('Emprestimo nao encontrado.', 404);
+      }
+
+      if (emprestimo.status !== 'ativo' && emprestimo.status !== 'atrasado') {
+        throw new AppError('Este emprestimo nao esta em aberto para devolucao.', 422);
+      }
+
+      const [itens] = await conexao.execute(
+        'SELECT jogo_id, quantidade FROM itens_emprestimo WHERE emprestimo_id = ?',
+        [id]
+      );
+
+      const quantidadeTotal = itens.reduce((total, item) => total + Number(item.quantidade), 0);
+      const diasAtraso = calcularDiasAtraso(emprestimo.data_prevista_devolucao);
+      const multa = diasAtraso * regras.multaDiaria * quantidadeTotal;
+      const valorTotal = Number(emprestimo.valor_total) + multa;
+
+      await conexao.execute(
+        `UPDATE emprestimos
+         SET status = 'devolvido',
+             data_devolucao_real = NOW(),
+             multa = ?,
+             valor_total = ?
+         WHERE id = ? AND status IN ('ativo', 'atrasado')`,
+        [multa, valorTotal, id]
+      );
+
+      for (const item of itens) {
+        await conexao.execute(
+          'UPDATE jogos SET estoque = estoque + ? WHERE id = ?',
+          [item.quantidade, item.jogo_id]
+        );
+      }
+
+      await conexao.commit();
+      return this.buscarPorId(id);
+    } catch (erro) {
+      await conexao.rollback();
+      throw erro;
+    } finally {
+      conexao.release();
+    }
+  }
+
+  async remover(id) {
+    const conexao = await pool.getConnection();
+
+    try {
+      await conexao.beginTransaction();
+      const [emprestimos] = await conexao.execute(
+        'SELECT id, status FROM emprestimos WHERE id = ? FOR UPDATE',
+        [id]
+      );
+      const emprestimo = emprestimos[0];
+
+      if (!emprestimo) {
+        await conexao.rollback();
+        return false;
+      }
+
+      if (emprestimo.status === 'ativo' || emprestimo.status === 'atrasado') {
+        const [itens] = await conexao.execute(
+          'SELECT jogo_id, quantidade FROM itens_emprestimo WHERE emprestimo_id = ?',
+          [id]
+        );
+
+        for (const item of itens) {
+          await conexao.execute(
+            'UPDATE jogos SET estoque = estoque + ? WHERE id = ?',
+            [item.quantidade, item.jogo_id]
+          );
+        }
+      }
+
+      await conexao.execute('DELETE FROM emprestimos WHERE id = ?', [id]);
+      await conexao.commit();
+      return true;
+    } catch (erro) {
+      await conexao.rollback();
+      throw erro;
+    } finally {
+      conexao.release();
+    }
+  }
+}
+
+function calcularDiasAtraso(dataPrevista) {
+  const hoje = new Date();
+  const limite = new Date(`${String(dataPrevista).slice(0, 10)}T23:59:59`);
+
+  if (Number.isNaN(limite.getTime()) || hoje <= limite) {
+    return 0;
+  }
+
+  const umDia = 1000 * 60 * 60 * 24;
+  return Math.ceil((hoje - limite) / umDia);
+}
+
+module.exports = EmprestimoDAO;
