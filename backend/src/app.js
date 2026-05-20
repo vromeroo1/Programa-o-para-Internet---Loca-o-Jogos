@@ -14,6 +14,9 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(env.uploadDir));
+app.use('/vendor/bootstrap', express.static(path.resolve(process.cwd(), 'node_modules/bootstrap/dist')));
+app.use('/vendor/chart.js', express.static(path.resolve(process.cwd(), 'node_modules/chart.js/dist')));
+app.use('/vendor/lucide', express.static(path.resolve(process.cwd(), 'node_modules/lucide/dist/umd')));
 app.use(logMiddleware);
 
 app.use('/api', apiRoutes);
