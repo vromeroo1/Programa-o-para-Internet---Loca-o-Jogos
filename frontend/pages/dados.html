@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dados e Logs | LocaJogos Univap</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+  <div id="navbar"></div>
+  <main class="container-fluid page-shell">
+    <div class="mb-4">
+      <h1 class="section-title">Dados, relatorios e logs</h1>
+      <p class="section-subtitle">Exportacao/importacao JSON, logs MongoDB em XML e relatorios PDF.</p>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-lg-6">
+        <section class="app-card p-3 h-100">
+          <h2 class="h5 mb-3">Exportar JSON</h2>
+          <div class="row g-2 align-items-end">
+            <div class="col-md-8">
+              <label class="form-label" for="entidadeExportar">Entidade</label>
+              <select class="form-select" id="entidadeExportar">
+                <option value="usuarios">Usuarios</option>
+                <option value="categorias">Categorias</option>
+                <option value="jogos">Jogos</option>
+                <option value="emprestimos">Emprestimos</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <button class="btn btn-dark w-100" id="btnExportarJson"><i data-lucide="download"></i>Exportar</button>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="col-lg-6">
+        <section class="app-card p-3 h-100">
+          <h2 class="h5 mb-3">Importar JSON</h2>
+          <form id="formImportar" class="row g-2 align-items-end">
+            <div class="col-md-4">
+              <label class="form-label" for="entidadeImportar">Entidade</label>
+              <select class="form-select" id="entidadeImportar">
+                <option value="categorias">Categorias</option>
+                <option value="jogos">Jogos</option>
+                <option value="usuarios">Usuarios</option>
+                <option value="emprestimos">Emprestimos</option>
+              </select>
+            </div>
+            <div class="col-md-5">
+              <label class="form-label" for="arquivoJson">Arquivo</label>
+              <input class="form-control" type="file" id="arquivoJson" accept="application/json" required>
+            </div>
+            <div class="col-md-3">
+              <button class="btn btn-outline-dark w-100" type="submit"><i data-lucide="upload"></i>Importar</button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-lg-4">
+        <section class="app-card p-3 h-100">
+          <h2 class="h5 mb-3">Relatorios PDF</h2>
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-dark" id="btnPdfJogos"><i data-lucide="file-text"></i>Relatorio de jogos</button>
+            <button class="btn btn-outline-dark" id="btnPdfEmprestimos"><i data-lucide="file-text"></i>Relatorio de emprestimos</button>
+          </div>
+        </section>
+      </div>
+      <div class="col-lg-8">
+        <section class="app-card p-3 h-100">
+          <div class="d-flex flex-wrap justify-content-between gap-2 align-items-end mb-3">
+            <div>
+              <h2 class="h5 mb-1">Logs do MongoDB</h2>
+              <p class="form-help mb-0">Acesso a rotas, erros, login/logout e alteracoes registradas.</p>
+            </div>
+            <button class="btn btn-dark" id="btnExportarXml"><i data-lucide="file-code-2"></i>Exportar XML</button>
+          </div>
+          <form id="formFiltroLogs" class="row g-2 align-items-end mb-3">
+            <div class="col-md-4">
+              <label class="form-label" for="usuarioLog">Usuario</label>
+              <input class="form-control" id="usuarioLog" placeholder="Email ou nome">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label" for="dataInicioLog">Data inicio</label>
+              <input type="date" class="form-control" id="dataInicioLog">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label" for="dataFimLog">Data fim</label>
+              <input type="date" class="form-control" id="dataFimLog">
+            </div>
+            <div class="col-md-2">
+              <button class="btn btn-outline-dark w-100" type="submit"><i data-lucide="search"></i>Filtrar</button>
+            </div>
+          </form>
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead><tr><th>Data</th><th>Usuario</th><th>Acao</th><th>Metodo</th><th>Status</th></tr></thead>
+              <tbody id="tabelaLogs"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="module" src="../assets/js/dados.js"></script>
+</body>
+</html>
