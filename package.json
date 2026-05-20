@@ -1,0 +1,33 @@
+{
+  "name": "locacao-jogos",
+  "version": "1.0.0",
+  "description": "Sistema Web de Locadora de Jogos para a disciplina Programacao Para Internet.",
+  "main": "backend/src/server.js",
+  "scripts": {
+    "dev": "node --watch backend/src/server.js",
+    "start": "node backend/src/server.js",
+    "verificar": "node backend/src/scripts/verificarEstrutura.js",
+    "documentacao:pdf": "node backend/src/scripts/gerarDocumentacaoPdf.js"
+  },
+  "keywords": [
+    "express",
+    "mysql",
+    "mongodb",
+    "mvc",
+    "locadora"
+  ],
+  "author": "Projeto academico UNIVAP",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.12.0",
+    "multer": "^2.0.2",
+    "mysql2": "^3.11.5",
+    "pdfkit": "^0.15.1",
+    "xml2js": "^0.6.2"
+  }
+}
