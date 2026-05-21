@@ -98,6 +98,8 @@ Eventos registrados:
 - exclusao de dados
 - erros e excecoes
 
+Quando o MongoDB nao estiver iniciado, o projeto grava uma copia temporaria em `backend/logs/logs_fallback.jsonl` para nao interromper a demonstracao. Para atender ao requisito principal, basta iniciar o MongoDB e a aplicacao passa a registrar na colecao `logs`.
+
 ## Exportacao XML
 
 A rota `GET /api/logs/exportar/xml` consulta os logs no MongoDB e usa `xml2js` para gerar XML com estrutura organizada. Existem filtros opcionais por usuario e data.
@@ -136,7 +138,7 @@ A importacao recebe arquivo pelo frontend usando `input type="file"`.
 1. Rodar `npm install`.
 2. Copiar `.env.example` para `.env`.
 3. Executar `database/banco.sql` no MySQL.
-4. Iniciar o MongoDB.
+4. Iniciar o MongoDB, se ele estiver instalado.
 5. Rodar `npm start`.
 6. Acessar `http://localhost:3000`.
 

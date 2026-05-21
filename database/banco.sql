@@ -97,9 +97,9 @@ CREATE INDEX idx_emprestimos_devolucao ON emprestimos(data_prevista_devolucao);
 CREATE INDEX idx_itens_jogo ON itens_emprestimo(jogo_id);
 
 INSERT INTO usuarios (nome, email, senha, telefone, tipo_usuario) VALUES
-('Administrador Academico', 'admin@locajogos.com', '$2a$10$BTHdxQcixbn5HqF5jq/VUuxXgedEG9vNs2Bx9yGO/YIonJ4nyg.Ma', '(12) 99999-0001', 'admin'),
-('Mariana Silva', 'mariana@email.com', '$2a$10$BTHdxQcixbn5HqF5jq/VUuxXgedEG9vNs2Bx9yGO/YIonJ4nyg.Ma', '(12) 98888-1010', 'cliente'),
-('Lucas Oliveira', 'lucas@email.com', '$2a$10$BTHdxQcixbn5HqF5jq/VUuxXgedEG9vNs2Bx9yGO/YIonJ4nyg.Ma', '(12) 97777-2020', 'cliente');
+('Administrador Academico', 'admin@locajogos.com', '$2a$10$1pOaKgjJQCe7pu.Wl5nMKONqxz7J9.BUG3uIR6rP04tBRXjyWty26', '(12) 99999-0001', 'admin'),
+('Mariana Silva', 'mariana@email.com', '$2a$10$1pOaKgjJQCe7pu.Wl5nMKONqxz7J9.BUG3uIR6rP04tBRXjyWty26', '(12) 98888-1010', 'cliente'),
+('Lucas Oliveira', 'lucas@email.com', '$2a$10$1pOaKgjJQCe7pu.Wl5nMKONqxz7J9.BUG3uIR6rP04tBRXjyWty26', '(12) 97777-2020', 'cliente');
 
 INSERT INTO categorias (nome, descricao) VALUES
 ('Aventura', 'Jogos de exploracao, missao e progressao de historia.'),

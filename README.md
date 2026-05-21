@@ -1,25 +1,20 @@
 # LocaJogos Univap
 
-Sistema Web Full Stack de Locadora de Jogos, desenvolvido para a disciplina Programacao Para Internet.
+Sistema web full stack para a disciplina **Programacao Para Internet**. O projeto usa **Node.js + Express** no backend, **HTML5 + CSS3 + JavaScript + Bootstrap** no frontend, **MySQL** como banco relacional e **MongoDB** para logs do sistema.
 
-O projeto segue os requisitos do enunciado: Node.js, Express, HTML5, CSS3, JavaScript, Bootstrap, MySQL, MongoDB, JWT, Chart.js, Multer, PDFKit, xml2js, MVC, Service Layer, Router, Middleware, DAO Pattern e interfaces didaticas.
+O XAMPP entra apenas como apoio para ligar o MySQL e visualizar o banco pelo phpMyAdmin. O Apache nao e necessario para rodar a aplicacao.
 
-## Funcionalidades
+## Tecnologias
 
-- Login/logout com JWT.
-- Rotas protegidas por middleware de autenticacao.
-- CRUD de usuarios, categorias, jogos e emprestimos.
-- Upload de imagem dos jogos com Multer.
-- Controle de estoque na criacao e devolucao de emprestimos.
-- Calculo de multa por atraso.
-- Filtros por busca, categoria, status, usuario e atrasos.
-- Dashboard com Chart.js.
-- Relatorios PDF de jogos e emprestimos.
-- Exportacao JSON.
-- Importacao JSON via formulario.
-- Logs completos no MongoDB.
-- Exportacao XML dos logs.
-- Respostas JSON padronizadas.
+- Node.js e Express
+- HTML5, CSS3, JavaScript e Bootstrap
+- MySQL com prepared statements
+- MongoDB para logs de auditoria
+- JWT para autenticacao
+- Multer para upload de imagens
+- Chart.js no dashboard
+- PDFKit para relatorios em PDF
+- xml2js para exportacao XML
 
 ## Estrutura
 
@@ -35,14 +30,19 @@ backend/
     routes/
     services/
     utils/
+  uploads/
+database/
 frontend/
   assets/
+    css/
+    js/
   pages/
-database/
 docs/
 ```
 
-## Como executar
+A arquitetura foi organizada em MVC, Service Layer, Router, Middleware e DAO Pattern. As interfaces `IDAO`, `IService` e `IController` ficam em `backend/src/interfaces`.
+
+## Como Rodar
 
 1. Instale as dependencias:
 
@@ -56,25 +56,27 @@ npm install
 copy .env.example .env
 ```
 
-3. Crie o banco MySQL usando o script:
+3. No XAMPP, ligue o **MySQL**. Se preferir enxergar as tabelas pelo navegador, abra:
 
-```bash
-mysql -u root -p < database/banco.sql
+```text
+http://localhost/phpmyadmin
 ```
 
-4. Garanta que o MongoDB esteja rodando localmente:
+4. Crie o banco executando o arquivo:
 
-```bash
-mongod
+```text
+database/banco.sql
 ```
 
-5. Inicie a aplicacao:
+5. Confira o `.env`. Se seu MySQL tiver senha, preencha `MYSQL_PASSWORD`.
+
+6. Rode a aplicacao:
 
 ```bash
 npm start
 ```
 
-6. Acesse:
+7. Acesse:
 
 ```text
 http://localhost:3000
@@ -87,6 +89,12 @@ Email: admin@locajogos.com
 Senha: 123456
 ```
 
+## MongoDB
+
+Se o MongoDB estiver rodando em `mongodb://127.0.0.1:27017`, os logs serao gravados na colecao `logs` do banco `locacao_jogos_logs`.
+
+Para facilitar apresentacao em sala, o sistema tambem possui fallback local em `backend/logs/logs_fallback.jsonl` caso o MongoDB ainda nao esteja iniciado. Assim a API continua funcionando, mas o ideal para demonstrar o requisito e deixar o MongoDB ligado.
+
 ## Scripts
 
 ```bash
@@ -96,21 +104,69 @@ npm run verificar
 npm run documentacao:pdf
 ```
 
-## Endpoints principais
+## Funcionalidades
 
-Todas as rotas abaixo, exceto `/api/health` e `/api/auth/login`, exigem header:
+- Login e logout com JWT
+- Rotas protegidas por middleware
+- CRUD de usuarios, categorias, jogos e emprestimos
+- Upload de imagem dos jogos
+- Criacao e devolucao de emprestimos
+- Atualizacao automatica de estoque
+- Calculo de multa por atraso
+- Filtros por titulo, categoria, status, usuario e atrasados
+- Dashboard com indicadores e grafico Chart.js
+- Relatorios PDF de jogos e emprestimos
+- Exportacao JSON
+- Importacao JSON
+- Exportacao XML dos logs
+- Logs completos com usuario, endpoint, metodo, status, acao, IP e detalhes
+
+## Endpoints Principais
+
+Base da API:
+
+```text
+http://localhost:3000/api
+```
+
+Todas as rotas abaixo, exceto `/api/health` e `/api/auth/login`, exigem token JWT:
 
 ```text
 Authorization: Bearer TOKEN_JWT
 ```
 
-### Autenticacao
+Rotas:
 
-- `POST /api/auth/login`
-- `POST /api/auth/logout`
-- `GET /api/auth/me`
+```text
+POST   /auth/login
+POST   /auth/logout
+GET    /usuarios
+POST   /usuarios
+PUT    /usuarios/:id
+DELETE /usuarios/:id
+GET    /categorias
+POST   /categorias
+PUT    /categorias/:id
+DELETE /categorias/:id
+GET    /jogos
+POST   /jogos
+PUT    /jogos/:id
+DELETE /jogos/:id
+GET    /emprestimos
+POST   /emprestimos
+PUT    /emprestimos/:id
+POST   /emprestimos/:id/devolver
+DELETE /emprestimos/:id
+GET    /dashboard/resumo
+GET    /exportacao/:entidade
+POST   /importacao/:entidade
+GET    /logs
+GET    /logs/exportar/xml
+GET    /relatorios/jogos/pdf
+GET    /relatorios/emprestimos/pdf
+```
 
-Exemplo:
+Exemplo de login:
 
 ```json
 {
@@ -119,40 +175,7 @@ Exemplo:
 }
 ```
 
-### Usuarios
-
-- `GET /api/usuarios?busca=&tipo_usuario=`
-- `GET /api/usuarios/:id`
-- `POST /api/usuarios`
-- `PUT /api/usuarios/:id`
-- `DELETE /api/usuarios/:id`
-
-### Categorias
-
-- `GET /api/categorias?busca=`
-- `GET /api/categorias/:id`
-- `POST /api/categorias`
-- `PUT /api/categorias/:id`
-- `DELETE /api/categorias/:id`
-
-### Jogos
-
-- `GET /api/jogos?busca=&categoria_id=&tipo_jogo=&disponiveis=1`
-- `GET /api/jogos/:id`
-- `POST /api/jogos` com `multipart/form-data`
-- `PUT /api/jogos/:id` com `multipart/form-data`
-- `DELETE /api/jogos/:id`
-
-### Emprestimos
-
-- `GET /api/emprestimos?status=&usuario_id=&atrasados=1`
-- `GET /api/emprestimos/:id`
-- `POST /api/emprestimos`
-- `PUT /api/emprestimos/:id`
-- `POST /api/emprestimos/:id/devolver`
-- `DELETE /api/emprestimos/:id`
-
-Exemplo de criacao:
+Exemplo de emprestimo:
 
 ```json
 {
@@ -166,36 +189,22 @@ Exemplo de criacao:
 }
 ```
 
-### Dashboard, dados, logs e relatorios
+Todas as respostas JSON seguem o formato:
 
-- `GET /api/dashboard/resumo`
-- `GET /api/exportacao/:entidade`
-- `POST /api/importacao/:entidade`
-- `GET /api/logs`
-- `GET /api/logs/exportar/xml`
-- `GET /api/relatorios/jogos/pdf`
-- `GET /api/relatorios/emprestimos/pdf`
+```json
+{
+  "sucesso": true,
+  "mensagem": "Operacao realizada com sucesso.",
+  "dados": {}
+}
+```
 
-## Banco de dados
+## Banco de Dados
 
-O MySQL possui 5 tabelas principais relacionadas:
-
-- `usuarios`
-- `categorias`
-- `jogos`
-- `emprestimos`
-- `itens_emprestimo`
+O script `database/banco.sql` cria as tabelas, chaves estrangeiras, indices e dados de teste. O arquivo `database/exemplos_consultas.sql` demonstra consultas com `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `WHERE`, operadores logicos, filtros e `JOIN`.
 
 Relacionamentos:
 
 - `usuarios` 1:N `emprestimos`
 - `categorias` 1:N `jogos`
-- `emprestimos` N:N `jogos` via `itens_emprestimo`
-
-O arquivo [database/exemplos_consultas.sql](database/exemplos_consultas.sql) demonstra consultas com `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `WHERE`, operadores logicos, filtros e relacionamentos.
-
-## Observacao para apresentacao
-
-O projeto foi escrito de forma didatica, deixando as camadas separadas para facilitar a explicacao:
-
-`Router -> Middleware -> Controller -> Service -> DAO -> Model/Banco`
+- `emprestimos` N:N `jogos` por `itens_emprestimo`

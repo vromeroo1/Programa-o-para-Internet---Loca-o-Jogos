@@ -9,7 +9,7 @@ async function conectarMongo() {
     return database;
   }
 
-  client = new MongoClient(env.mongo.uri);
+  client = new MongoClient(env.mongo.uri, { serverSelectionTimeoutMS: 1500 });
   await client.connect();
   database = client.db(env.mongo.database);
   return database;
