@@ -78,6 +78,29 @@ class JogoService extends IService {
     return removido;
   }
 
+  async atualizarEstoque(id, dados, autor) {
+    const quantidade = Number(dados.quantidade);
+
+    if (!Number.isInteger(quantidade) || quantidade === 0) {
+      throw new AppError('Informe uma quantidade inteira diferente de zero para ajustar o estoque.', 422);
+    }
+
+    const antes = await this.buscarPorId(id);
+    const jogo = await this.jogoDAO.ajustarEstoque(id, quantidade);
+
+    if (!jogo) {
+      throw new AppError('Nao foi possivel ajustar o estoque. Verifique se o saldo nao ficara negativo.', 422);
+    }
+
+    await this.logService.registrar({
+      usuario: autor?.email || 'sistema',
+      acao: 'AJUSTAR_ESTOQUE_JOGO',
+      detalhes: { tabela: 'jogos', registro_id: id, quantidade, antes, depois: jogo }
+    });
+
+    return jogo;
+  }
+
   async validarCategoria(categoriaId) {
     const categoria = await this.categoriaDAO.buscarPorId(categoriaId);
     if (!categoria) throw new AppError('Categoria informada nao existe.', 404);

@@ -30,6 +30,11 @@ class JogoDAO extends IDAO {
       params.push(filtros.tipo_jogo);
     }
 
+    if (filtros.plataforma) {
+      sql += ' AND j.plataforma = ?';
+      params.push(filtros.plataforma);
+    }
+
     if (filtros.disponiveis === '1' || filtros.disponiveis === true) {
       sql += ' AND j.estoque > 0';
     }
@@ -100,6 +105,17 @@ class JogoDAO extends IDAO {
   async remover(id) {
     const [resultado] = await pool.execute('DELETE FROM jogos WHERE id = ?', [id]);
     return resultado.affectedRows > 0;
+  }
+
+  async ajustarEstoque(id, quantidade) {
+    const [resultado] = await pool.execute(
+      `UPDATE jogos
+       SET estoque = estoque + ?
+       WHERE id = ? AND estoque + ? >= 0`,
+      [quantidade, id, quantidade]
+    );
+
+    return resultado.affectedRows > 0 ? this.buscarPorId(id) : null;
   }
 }
 

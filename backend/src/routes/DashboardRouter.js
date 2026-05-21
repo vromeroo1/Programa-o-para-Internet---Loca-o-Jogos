@@ -1,6 +1,7 @@
 const express = require('express');
 const DashboardController = require('../controllers/DashboardController');
 const authMiddleware = require('../middlewares/auth_middleware');
+const roleMiddleware = require('../middlewares/role_middleware');
 const asyncHandler = require('../utils/asyncHandler');
 
 class DashboardRouter {
@@ -12,6 +13,7 @@ class DashboardRouter {
 
   setupRoutes() {
     this.router.use(authMiddleware);
+    this.router.use(roleMiddleware('admin'));
     this.router.get('/resumo', asyncHandler(this.controller.resumo.bind(this.controller)));
   }
 

@@ -23,6 +23,21 @@ class EmprestimoController extends IController {
     return sucesso(res, 'Emprestimo criado com sucesso.', emprestimo, 201);
   }
 
+  async criarReserva(req, res) {
+    const reserva = await this.emprestimoService.criarReserva(req.body, req.usuario);
+    return sucesso(res, 'Reserva solicitada com sucesso.', reserva, 201);
+  }
+
+  async minhasReservas(req, res) {
+    const reservas = await this.emprestimoService.listarPorUsuario(req.usuario.id, req.query);
+    return sucesso(res, 'Reservas do usuario listadas com sucesso.', reservas);
+  }
+
+  async cancelarMinhaReserva(req, res) {
+    const reserva = await this.emprestimoService.cancelarMinhaReserva(req.params.id, req.usuario);
+    return sucesso(res, 'Reserva cancelada com sucesso.', reserva);
+  }
+
   async atualizar(req, res) {
     const emprestimo = await this.emprestimoService.atualizar(req.params.id, req.body, req.usuario);
     return sucesso(res, 'Emprestimo atualizado com sucesso.', emprestimo);

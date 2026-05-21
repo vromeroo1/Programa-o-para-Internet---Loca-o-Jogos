@@ -1,9 +1,9 @@
-import { apiFetch, exigirLogin, baixarBlob } from './api.js';
+import { apiFetch, exigirAdmin, baixarBlob } from './api.js';
 import { montarNavbar, tratarErro, moeda, atualizarIcones } from './ui.js';
 
 let grafico;
 
-exigirLogin();
+exigirAdmin();
 montarNavbar('dashboard');
 carregarDashboard();
 
@@ -64,3 +64,4 @@ async function baixarPdfEmprestimos() {
     tratarErro(erro);
   }
 }
+

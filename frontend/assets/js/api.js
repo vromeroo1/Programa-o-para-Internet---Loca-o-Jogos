@@ -25,8 +25,26 @@ export function exigirLogin() {
   }
 }
 
+export function exigirAdmin() {
+  exigirLogin();
+  if (usuarioLogado()?.tipo_usuario !== 'admin') {
+    window.location.href = caminhoPaginaUsuario('catalogo.html');
+  }
+}
+
+export function exigirUsuarioAutenticado() {
+  exigirLogin();
+  if (usuarioLogado()?.tipo_usuario === 'admin') {
+    window.location.href = caminhoPaginaUsuario('dashboard.html');
+  }
+}
+
 export function caminhoIndex() {
   return window.location.pathname.includes('/pages/') ? '../index.html' : 'index.html';
+}
+
+export function caminhoPaginaUsuario(pagina) {
+  return window.location.pathname.includes('/pages/') ? pagina : `pages/${pagina}`;
 }
 
 export async function apiFetch(caminho, opcoes = {}) {
@@ -64,3 +82,4 @@ export function baixarBlob(blob, nome) {
   link.click();
   URL.revokeObjectURL(url);
 }
+

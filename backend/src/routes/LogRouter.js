@@ -1,6 +1,7 @@
 const express = require('express');
 const LogController = require('../controllers/LogController');
 const authMiddleware = require('../middlewares/auth_middleware');
+const roleMiddleware = require('../middlewares/role_middleware');
 const asyncHandler = require('../utils/asyncHandler');
 
 class LogRouter {
@@ -12,6 +13,7 @@ class LogRouter {
 
   setupRoutes() {
     this.router.use(authMiddleware);
+    this.router.use(roleMiddleware('admin'));
     this.router.get('/', asyncHandler(this.controller.listar.bind(this.controller)));
     this.router.get('/exportar/xml', asyncHandler(this.controller.exportarXml.bind(this.controller)));
   }

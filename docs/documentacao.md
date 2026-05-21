@@ -1,4 +1,4 @@
-# Documentacao do Projeto - LocaJogos Univap
+# Documentacao do Projeto - LocaGames Univap
 
 ## Tema e objetivo
 
@@ -15,6 +15,8 @@ O tema escolhido foi um Sistema Web de Locadora de Jogos, atendendo video games 
 - Se a devolucao ocorrer apos a data prevista, a multa e calculada em R$ 2,00 por dia e por item.
 - Nao e permitido emprestar jogo sem estoque suficiente.
 - As rotas privadas exigem token JWT.
+- Rotas administrativas exigem `tipo_usuario = admin`.
+- Usuarios comuns acessam catalogo, reservas, historico e perfil.
 
 ## Arquitetura MVC + Service Layer
 
@@ -57,6 +59,10 @@ Principais services:
 - `ExportacaoService`: exportacao/importacao JSON.
 - `LogService`: logs no MongoDB e exportacao XML.
 - `RelatorioService`: PDFs com PDFKit.
+
+## Controle de acesso
+
+O projeto possui `auth_middleware` para validar o token JWT e `role_middleware` para conferir permissoes por tipo de usuario. O admin acessa dashboard, cadastros, relatorios, importacao/exportacao e logs. O usuario comum acessa catalogo, minhas reservas, historico e perfil.
 
 ## Banco MySQL
 
@@ -142,11 +148,11 @@ A importacao recebe arquivo pelo frontend usando `input type="file"`.
 5. Rodar `npm start`.
 6. Acessar `http://localhost:3000`.
 
-Usuario de teste:
+Usuarios de teste:
 
 ```text
-admin@locajogos.com
-123456
+admin@locadora.com / 123456
+usuario@locadora.com / 123456
 ```
 
 ## Endpoints
@@ -172,6 +178,9 @@ Principais rotas:
 - `PUT /api/emprestimos/:id`
 - `POST /api/emprestimos/:id/devolver`
 - `DELETE /api/emprestimos/:id`
+- `POST /api/reservas`
+- `GET /api/minhas-reservas`
+- `DELETE /api/minhas-reservas/:id`
 - `GET /api/dashboard/resumo`
 - `GET /api/exportacao/:entidade`
 - `POST /api/importacao/:entidade`

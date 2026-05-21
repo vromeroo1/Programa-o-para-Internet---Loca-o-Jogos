@@ -5,7 +5,7 @@ SELECT j.id, j.titulo, c.nome AS categoria, j.tipo_jogo, j.plataforma, j.estoque
 FROM jogos j
 INNER JOIN categorias c ON c.id = j.categoria_id
 WHERE j.estoque > 0
-  AND c.nome = 'Aventura'
+  AND c.nome = 'Acao'
 ORDER BY j.titulo;
 
 -- SELECT com operadores logicos: busca por titulo ou plataforma.
@@ -18,7 +18,7 @@ WHERE (titulo LIKE '%Zelda%' OR plataforma LIKE '%Switch%')
 SELECT e.id, u.nome AS usuario, e.data_prevista_devolucao, e.status, e.valor_total
 FROM emprestimos e
 INNER JOIN usuarios u ON u.id = e.usuario_id
-WHERE e.status = 'ativo'
+WHERE e.status IN ('pendente', 'aprovado', 'retirado')
   AND e.data_prevista_devolucao < CURDATE();
 
 -- SELECT agregada: jogos mais alugados.
@@ -35,7 +35,7 @@ SET status = 'devolvido',
     multa = 4.00,
     valor_total = valor_total + 4.00
 WHERE id = 1
-  AND status = 'ativo';
+  AND status IN ('aprovado', 'retirado', 'atrasado');
 
 -- DELETE com WHERE: remover uma categoria sem jogos vinculados.
 DELETE FROM categorias

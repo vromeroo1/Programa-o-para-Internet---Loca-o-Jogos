@@ -14,6 +14,10 @@ class EmprestimoService extends IService {
     return this.emprestimoDAO.listar(filtros);
   }
 
+  async listarPorUsuario(usuarioId, filtros) {
+    return this.emprestimoDAO.listarPorUsuario(usuarioId, filtros);
+  }
+
   async buscarPorId(id) {
     const emprestimo = await this.emprestimoDAO.buscarPorId(id);
     if (!emprestimo) throw new AppError('Emprestimo nao encontrado.', 404);
@@ -26,7 +30,7 @@ class EmprestimoService extends IService {
     const emprestimo = await this.emprestimoDAO.criar({
       ...dados,
       usuario_id: Number(dados.usuario_id)
-    });
+    }, dados.status || 'aprovado');
 
     await this.logService.registrar({
       usuario: autor?.email || 'sistema',
@@ -35,6 +39,24 @@ class EmprestimoService extends IService {
     });
 
     return emprestimo;
+  }
+
+  async criarReserva(dados, autor) {
+    this.validarItens(dados.itens);
+
+    const reserva = await this.emprestimoDAO.criar({
+      ...dados,
+      usuario_id: Number(autor.id),
+      observacoes: dados.observacoes || 'Reserva solicitada pelo catalogo.'
+    }, 'pendente');
+
+    await this.logService.registrar({
+      usuario: autor?.email || 'sistema',
+      acao: 'CRIAR_RESERVA',
+      detalhes: { tabela: 'emprestimos', registro_id: reserva.id, dados_inseridos: reserva }
+    });
+
+    return reserva;
   }
 
   async atualizar(id, dados, autor) {
@@ -74,6 +96,24 @@ class EmprestimoService extends IService {
     });
 
     return removido;
+  }
+
+  async cancelarMinhaReserva(id, autor) {
+    const antes = await this.buscarPorId(id);
+
+    if (Number(antes.usuario_id) !== Number(autor.id)) {
+      throw new AppError('Esta reserva pertence a outro usuario.', 403);
+    }
+
+    const reserva = await this.emprestimoDAO.cancelarMinhaReserva(id, autor.id);
+
+    await this.logService.registrar({
+      usuario: autor?.email || 'sistema',
+      acao: 'CANCELAR_RESERVA_USUARIO',
+      detalhes: { tabela: 'emprestimos', registro_id: id, antes, depois: reserva }
+    });
+
+    return reserva;
   }
 
   validarItens(itens) {

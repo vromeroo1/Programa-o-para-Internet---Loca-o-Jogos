@@ -28,6 +28,11 @@ class JogoController extends IController {
     return sucesso(res, 'Jogo atualizado com sucesso.', jogo);
   }
 
+  async atualizarEstoque(req, res) {
+    const jogo = await this.jogoService.atualizarEstoque(req.params.id, req.body, req.usuario);
+    return sucesso(res, 'Estoque atualizado com sucesso.', jogo);
+  }
+
   async remover(req, res) {
     await this.jogoService.remover(req.params.id, req.usuario);
     return sucesso(res, 'Jogo removido com sucesso.');

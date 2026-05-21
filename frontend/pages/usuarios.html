@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Usuarios | LocaJogos Univap</title>
+  <title>Usuarios | LocaGames Univap</title>
   <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="../assets/css/style.css" rel="stylesheet">
 </head>
@@ -13,7 +13,7 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
       <div>
         <h1 class="section-title">Usuarios</h1>
-        <p class="section-subtitle">Clientes e administradores que podem realizar emprestimos.</p>
+        <p class="section-subtitle">Usuarios comuns e administradores com controle de acesso.</p>
       </div>
       <button class="btn btn-dark" id="btnNovoUsuario"><i data-lucide="user-plus"></i>Novo usuario</button>
     </div>
@@ -29,7 +29,7 @@
           <select class="form-select" id="tipoUsuarioFiltro">
             <option value="">Todos</option>
             <option value="admin">Administrador</option>
-            <option value="cliente">Cliente</option>
+            <option value="usuario">Usuario comum</option>
           </select>
         </div>
         <div class="col-md-auto">
@@ -75,7 +75,7 @@
             <div class="col-md-6 mb-3">
               <label class="form-label" for="tipo_usuario">Tipo</label>
               <select class="form-select" id="tipo_usuario" name="tipo_usuario">
-                <option value="cliente">Cliente</option>
+                <option value="usuario">Usuario comum</option>
                 <option value="admin">Administrador</option>
               </select>
             </div>
@@ -99,3 +99,4 @@
   <script type="module" src="../assets/js/usuarios.js"></script>
 </body>
 </html>
+

@@ -1,10 +1,10 @@
-import { apiFetch, exigirLogin } from './api.js';
+import { apiFetch, exigirAdmin } from './api.js';
 import { montarNavbar, toast, tratarErro, atualizarIcones } from './ui.js';
 
 const modal = new bootstrap.Modal(document.getElementById('modalCategoria'));
 const form = document.getElementById('formCategoria');
 
-exigirLogin();
+exigirAdmin();
 montarNavbar('categorias');
 carregarCategorias();
 
@@ -96,3 +96,4 @@ function abrirModal(categoria = null) {
   modal.show();
   atualizarIcones();
 }
+

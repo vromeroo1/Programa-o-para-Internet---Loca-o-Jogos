@@ -1,10 +1,10 @@
-import { apiFetch, exigirLogin } from './api.js';
+import { apiFetch, exigirAdmin } from './api.js';
 import { montarNavbar, toast, tratarErro, atualizarIcones } from './ui.js';
 
 const modal = new bootstrap.Modal(document.getElementById('modalUsuario'));
 const form = document.getElementById('formUsuario');
 
-exigirLogin();
+exigirAdmin();
 montarNavbar('usuarios');
 carregarUsuarios();
 
@@ -99,9 +99,10 @@ function abrirModal(usuario = null) {
   document.getElementById('nome').value = usuario?.nome || '';
   document.getElementById('email').value = usuario?.email || '';
   document.getElementById('telefone').value = usuario?.telefone || '';
-  document.getElementById('tipo_usuario').value = usuario?.tipo_usuario || 'cliente';
+  document.getElementById('tipo_usuario').value = usuario?.tipo_usuario || 'usuario';
   document.getElementById('senha').value = '';
   document.getElementById('senha').required = !usuario;
   modal.show();
   atualizarIcones();
 }
+

@@ -57,7 +57,7 @@ class UsuarioDAO extends IDAO {
         usuario.email,
         usuario.senha,
         usuario.telefone || null,
-        usuario.tipo_usuario || 'cliente'
+        usuario.tipo_usuario || 'usuario'
       ]
     );
 

@@ -1,16 +1,24 @@
-import { apiFetch, exigirLogin, baixarBlob } from './api.js';
-import { montarNavbar, toast, tratarErro, moeda, atualizarIcones } from './ui.js';
+import { apiFetch, exigirAdmin, baixarBlob } from './api.js';
+import { montarNavbar, toast, tratarErro, moeda, atualizarIcones, textoTipoJogo } from './ui.js';
 
 const modal = new bootstrap.Modal(document.getElementById('modalJogo'));
 const form = document.getElementById('formJogo');
 let categorias = [];
 
-exigirLogin();
+exigirAdmin();
 montarNavbar('jogos');
 iniciar();
 
 document.getElementById('btnNovoJogo').addEventListener('click', () => abrirModal());
 document.getElementById('btnPdfJogos').addEventListener('click', baixarPdf);
+document.querySelectorAll('[data-tipo-tab]').forEach((botao) => {
+  botao.addEventListener('click', () => {
+    document.querySelectorAll('[data-tipo-tab]').forEach((item) => item.classList.remove('active'));
+    botao.classList.add('active');
+    document.getElementById('tipoFiltro').value = botao.dataset.tipoTab;
+    carregarJogos();
+  });
+});
 document.getElementById('formFiltro').addEventListener('submit', (evento) => {
   evento.preventDefault();
   carregarJogos();
@@ -71,7 +79,7 @@ async function carregarJogos() {
           </div>
         </td>
         <td>${jogo.categoria_nome}</td>
-        <td>${jogo.tipo_jogo}</td>
+        <td>${textoTipoJogo(jogo.tipo_jogo)}</td>
         <td>${jogo.plataforma || '-'}</td>
         <td class="text-end">${moeda(jogo.valor_aluguel)}</td>
         <td class="text-end">${jogo.estoque}</td>
@@ -121,7 +129,7 @@ function abrirModal(jogo = null) {
   document.getElementById('tituloModal').textContent = jogo ? 'Editar jogo' : 'Novo jogo';
   document.getElementById('titulo').value = jogo?.titulo || '';
   document.getElementById('categoria_id').value = jogo?.categoria_id || categorias[0]?.id || '';
-  document.getElementById('tipo_jogo').value = jogo?.tipo_jogo || 'video_game';
+  document.getElementById('tipo_jogo').value = jogo?.tipo_jogo || 'videogame';
   document.getElementById('plataforma').value = jogo?.plataforma || '';
   document.getElementById('valor_aluguel').value = jogo?.valor_aluguel || '';
   document.getElementById('estoque').value = jogo?.estoque ?? '';
@@ -148,3 +156,4 @@ async function baixarPdf() {
     tratarErro(erro);
   }
 }
+

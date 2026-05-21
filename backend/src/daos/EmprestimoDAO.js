@@ -10,7 +10,7 @@ class EmprestimoDAO extends IDAO {
         e.id, e.usuario_id, u.nome AS usuario_nome, u.email AS usuario_email,
         e.data_emprestimo, e.data_prevista_devolucao, e.data_devolucao_real,
         CASE
-          WHEN e.status = 'ativo' AND e.data_prevista_devolucao < CURDATE() THEN 'atrasado'
+          WHEN e.status IN ('pendente', 'aprovado', 'retirado') AND e.data_prevista_devolucao < CURDATE() THEN 'atrasado'
           ELSE e.status
         END AS status,
         e.multa, e.valor_total, e.observacoes,
@@ -24,7 +24,7 @@ class EmprestimoDAO extends IDAO {
 
     if (filtros.status) {
       if (filtros.status === 'atrasado') {
-        sql += " AND e.status = 'ativo' AND e.data_prevista_devolucao < CURDATE()";
+        sql += " AND e.status IN ('pendente', 'aprovado', 'retirado') AND e.data_prevista_devolucao < CURDATE()";
       } else {
         sql += ' AND e.status = ?';
         params.push(filtros.status);
@@ -37,7 +37,7 @@ class EmprestimoDAO extends IDAO {
     }
 
     if (filtros.atrasados === '1' || filtros.atrasados === true) {
-      sql += " AND e.status = 'ativo' AND e.data_prevista_devolucao < CURDATE()";
+      sql += " AND e.status IN ('pendente', 'aprovado', 'retirado') AND e.data_prevista_devolucao < CURDATE()";
     }
 
     sql += `
@@ -55,7 +55,7 @@ class EmprestimoDAO extends IDAO {
         e.id, e.usuario_id, u.nome AS usuario_nome, u.email AS usuario_email,
         e.data_emprestimo, e.data_prevista_devolucao, e.data_devolucao_real,
         CASE
-          WHEN e.status = 'ativo' AND e.data_prevista_devolucao < CURDATE() THEN 'atrasado'
+          WHEN e.status IN ('pendente', 'aprovado', 'retirado') AND e.data_prevista_devolucao < CURDATE() THEN 'atrasado'
           ELSE e.status
         END AS status,
         e.multa, e.valor_total, e.observacoes
@@ -85,7 +85,11 @@ class EmprestimoDAO extends IDAO {
     return { ...emprestimo, itens };
   }
 
-  async criar(dados) {
+  async listarPorUsuario(usuarioId, filtros = {}) {
+    return this.listar({ ...filtros, usuario_id: usuarioId });
+  }
+
+  async criar(dados, statusInicial = 'aprovado') {
     const conexao = await pool.getConnection();
 
     try {
@@ -129,11 +133,12 @@ class EmprestimoDAO extends IDAO {
 
       const [resultado] = await conexao.execute(
         `INSERT INTO emprestimos
-         (usuario_id, data_prevista_devolucao, valor_total, observacoes)
-         VALUES (?, ?, ?, ?)`,
+         (usuario_id, data_prevista_devolucao, status, valor_total, observacoes)
+         VALUES (?, ?, ?, ?, ?)`,
         [
           dados.usuario_id,
           dados.data_prevista_devolucao,
+          statusInicial,
           valorTotal,
           dados.observacoes || null
         ]
@@ -166,22 +171,48 @@ class EmprestimoDAO extends IDAO {
   }
 
   async atualizar(id, dados) {
-    const { sets, valores } = montarUpdate(dados, [
-      'data_prevista_devolucao',
-      'status',
-      'observacoes'
-    ]);
+    const antes = await this.buscarPorId(id);
+    const deveRestaurarEstoque = dados.status === 'cancelado' && antes && statusReservaEstoque(antes.status);
 
-    if (sets.length === 0) {
+    const conexao = await pool.getConnection();
+
+    try {
+      await conexao.beginTransaction();
+      const { sets, valores } = montarUpdate(dados, [
+        'data_prevista_devolucao',
+        'status',
+        'observacoes'
+      ]);
+
+      if (sets.length > 0) {
+        await conexao.execute(
+          `UPDATE emprestimos SET ${sets.join(', ')} WHERE id = ?`,
+          [...valores, id]
+        );
+      }
+
+      if (deveRestaurarEstoque) {
+        const [itens] = await conexao.execute(
+          'SELECT jogo_id, quantidade FROM itens_emprestimo WHERE emprestimo_id = ?',
+          [id]
+        );
+
+        for (const item of itens) {
+          await conexao.execute(
+            'UPDATE jogos SET estoque = estoque + ? WHERE id = ?',
+            [item.quantidade, item.jogo_id]
+          );
+        }
+      }
+
+      await conexao.commit();
       return this.buscarPorId(id);
+    } catch (erro) {
+      await conexao.rollback();
+      throw erro;
+    } finally {
+      conexao.release();
     }
-
-    await pool.execute(
-      `UPDATE emprestimos SET ${sets.join(', ')} WHERE id = ?`,
-      [...valores, id]
-    );
-
-    return this.buscarPorId(id);
   }
 
   async devolver(id, regras = { multaDiaria: 2 }) {
@@ -200,7 +231,7 @@ class EmprestimoDAO extends IDAO {
         throw new AppError('Emprestimo nao encontrado.', 404);
       }
 
-      if (emprestimo.status !== 'ativo' && emprestimo.status !== 'atrasado') {
+      if (!['aprovado', 'retirado', 'atrasado'].includes(emprestimo.status)) {
         throw new AppError('Este emprestimo nao esta em aberto para devolucao.', 422);
       }
 
@@ -220,7 +251,7 @@ class EmprestimoDAO extends IDAO {
              data_devolucao_real = NOW(),
              multa = ?,
              valor_total = ?
-         WHERE id = ? AND status IN ('ativo', 'atrasado')`,
+         WHERE id = ? AND status IN ('aprovado', 'retirado', 'atrasado')`,
         [multa, valorTotal, id]
       );
 
@@ -257,7 +288,7 @@ class EmprestimoDAO extends IDAO {
         return false;
       }
 
-      if (emprestimo.status === 'ativo' || emprestimo.status === 'atrasado') {
+      if (statusReservaEstoque(emprestimo.status)) {
         const [itens] = await conexao.execute(
           'SELECT jogo_id, quantidade FROM itens_emprestimo WHERE emprestimo_id = ?',
           [id]
@@ -281,6 +312,52 @@ class EmprestimoDAO extends IDAO {
       conexao.release();
     }
   }
+
+  async cancelarMinhaReserva(id, usuarioId) {
+    const conexao = await pool.getConnection();
+
+    try {
+      await conexao.beginTransaction();
+      const [emprestimos] = await conexao.execute(
+        'SELECT id, status FROM emprestimos WHERE id = ? AND usuario_id = ? FOR UPDATE',
+        [id, usuarioId]
+      );
+      const emprestimo = emprestimos[0];
+
+      if (!emprestimo) {
+        throw new AppError('Reserva nao encontrada para este usuario.', 404);
+      }
+
+      if (emprestimo.status !== 'pendente') {
+        throw new AppError('Somente reservas pendentes podem ser canceladas pelo usuario.', 422);
+      }
+
+      const [itens] = await conexao.execute(
+        'SELECT jogo_id, quantidade FROM itens_emprestimo WHERE emprestimo_id = ?',
+        [id]
+      );
+
+      await conexao.execute(
+        "UPDATE emprestimos SET status = 'cancelado' WHERE id = ? AND usuario_id = ? AND status = 'pendente'",
+        [id, usuarioId]
+      );
+
+      for (const item of itens) {
+        await conexao.execute(
+          'UPDATE jogos SET estoque = estoque + ? WHERE id = ?',
+          [item.quantidade, item.jogo_id]
+        );
+      }
+
+      await conexao.commit();
+      return this.buscarPorId(id);
+    } catch (erro) {
+      await conexao.rollback();
+      throw erro;
+    } finally {
+      conexao.release();
+    }
+  }
 }
 
 function calcularDiasAtraso(dataPrevista) {
@@ -293,6 +370,10 @@ function calcularDiasAtraso(dataPrevista) {
 
   const umDia = 1000 * 60 * 60 * 24;
   return Math.ceil((hoje - limite) / umDia);
+}
+
+function statusReservaEstoque(status) {
+  return ['pendente', 'aprovado', 'retirado', 'atrasado'].includes(status);
 }
 
 module.exports = EmprestimoDAO;

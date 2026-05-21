@@ -8,6 +8,7 @@ const DashboardRouter = require('./DashboardRouter');
 const ExportacaoRouter = require('./ExportacaoRouter');
 const LogRouter = require('./LogRouter');
 const RelatorioRouter = require('./RelatorioRouter');
+const ReservaRouter = require('./ReservaRouter');
 const { sucesso } = require('../utils/resposta');
 
 const router = express.Router();
@@ -27,5 +28,6 @@ router.use('/exportacao', new ExportacaoRouter().getRouter());
 router.use('/importacao', new ExportacaoRouter().getRouter());
 router.use('/logs', new LogRouter().getRouter());
 router.use('/relatorios', new RelatorioRouter().getRouter());
+router.use('/', new ReservaRouter().getRouter());
 
 module.exports = router;

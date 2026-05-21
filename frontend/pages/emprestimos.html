@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Emprestimos | LocaJogos Univap</title>
+  <title>Emprestimos | LocaGames Univap</title>
   <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="../assets/css/style.css" rel="stylesheet">
 </head>
@@ -12,8 +12,8 @@
   <main class="container-fluid page-shell">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
       <div>
-        <h1 class="section-title">Emprestimos</h1>
-        <p class="section-subtitle">Controle N:N entre emprestimos e jogos, com baixa e devolucao de estoque.</p>
+        <h1 class="section-title">Emprestimos e reservas</h1>
+        <p class="section-subtitle">Administre reservas pendentes, retiradas, devolucoes e atrasos.</p>
       </div>
       <div class="d-flex gap-2">
         <button class="btn btn-outline-dark" id="btnPdfEmprestimos"><i data-lucide="file-text"></i>PDF</button>
@@ -31,7 +31,9 @@
           <label class="form-label" for="statusFiltro">Status</label>
           <select class="form-select" id="statusFiltro">
             <option value="">Todos</option>
-            <option value="ativo">Ativos</option>
+            <option value="pendente">Pendentes</option>
+            <option value="aprovado">Aprovados</option>
+            <option value="retirado">Retirados</option>
             <option value="atrasado">Atrasados</option>
             <option value="devolvido">Devolvidos</option>
             <option value="cancelado">Cancelados</option>
@@ -105,7 +107,9 @@
           <div class="mb-3">
             <label class="form-label" for="statusEdicao">Status</label>
             <select class="form-select" id="statusEdicao">
-              <option value="ativo">Ativo</option>
+              <option value="pendente">Pendente</option>
+              <option value="aprovado">Aprovado</option>
+              <option value="retirado">Retirado</option>
               <option value="atrasado">Atrasado</option>
               <option value="devolvido">Devolvido</option>
               <option value="cancelado">Cancelado</option>
@@ -129,3 +133,4 @@
   <script type="module" src="../assets/js/emprestimos.js"></script>
 </body>
 </html>
+

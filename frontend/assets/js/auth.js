@@ -24,10 +24,13 @@ form.addEventListener('submit', async (evento) => {
     });
     salvarSessao(resposta.dados);
     toast('Login realizado com sucesso.');
-    window.location.href = 'pages/dashboard.html';
+    window.location.href = resposta.dados.usuario.tipo_usuario === 'admin'
+      ? 'pages/dashboard.html'
+      : 'pages/catalogo.html';
   } catch (erro) {
     tratarErro(erro);
   } finally {
     botao.disabled = false;
   }
 });
+

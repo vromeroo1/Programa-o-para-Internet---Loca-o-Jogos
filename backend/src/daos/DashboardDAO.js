@@ -8,8 +8,8 @@ class DashboardDAO {
     );
     const [[emprestimos]] = await pool.execute(`
       SELECT
-        SUM(CASE WHEN status = 'ativo' THEN 1 ELSE 0 END) AS emprestimos_ativos,
-        SUM(CASE WHEN status = 'ativo' AND data_prevista_devolucao < CURDATE() THEN 1 ELSE 0 END) AS emprestimos_atrasados,
+        SUM(CASE WHEN status IN ('pendente', 'aprovado', 'retirado') THEN 1 ELSE 0 END) AS emprestimos_ativos,
+        SUM(CASE WHEN status IN ('pendente', 'aprovado', 'retirado') AND data_prevista_devolucao < CURDATE() THEN 1 ELSE 0 END) AS emprestimos_atrasados,
         COALESCE(SUM(CASE WHEN status = 'devolvido' THEN valor_total ELSE 0 END), 0) AS total_arrecadado
       FROM emprestimos
     `);
@@ -40,14 +40,14 @@ class DashboardDAO {
     const [rows] = await pool.execute(`
       SELECT
         CASE
-          WHEN status = 'ativo' AND data_prevista_devolucao < CURDATE() THEN 'atrasado'
+          WHEN status IN ('pendente', 'aprovado', 'retirado') AND data_prevista_devolucao < CURDATE() THEN 'atrasado'
           ELSE status
         END AS status,
         COUNT(*) AS total
       FROM emprestimos
       GROUP BY
         CASE
-          WHEN status = 'ativo' AND data_prevista_devolucao < CURDATE() THEN 'atrasado'
+          WHEN status IN ('pendente', 'aprovado', 'retirado') AND data_prevista_devolucao < CURDATE() THEN 'atrasado'
           ELSE status
         END
     `);

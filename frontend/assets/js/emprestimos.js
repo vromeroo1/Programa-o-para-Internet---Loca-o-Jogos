@@ -1,4 +1,4 @@
-import { apiFetch, exigirLogin, baixarBlob } from './api.js';
+import { apiFetch, exigirAdmin, baixarBlob } from './api.js';
 import { montarNavbar, toast, tratarErro, moeda, badgeStatus, atualizarIcones } from './ui.js';
 
 const modalEmprestimo = new bootstrap.Modal(document.getElementById('modalEmprestimo'));
@@ -8,7 +8,7 @@ const formEdicao = document.getElementById('formEdicao');
 let usuarios = [];
 let jogos = [];
 
-exigirLogin();
+exigirAdmin();
 montarNavbar('emprestimos');
 iniciar();
 
@@ -108,7 +108,7 @@ async function carregarEmprestimos() {
           <button class="btn btn-sm btn-outline-dark btn-icon" title="Editar" data-editar="${emprestimo.id}">
             <i data-lucide="pencil"></i>
           </button>
-          <button class="btn btn-sm btn-outline-success btn-icon" title="Devolver" data-devolver="${emprestimo.id}" ${emprestimo.status === 'devolvido' ? 'disabled' : ''}>
+          <button class="btn btn-sm btn-outline-success btn-icon" title="Devolver" data-devolver="${emprestimo.id}" ${['devolvido', 'cancelado', 'pendente'].includes(emprestimo.status) ? 'disabled' : ''}>
             <i data-lucide="check"></i>
           </button>
           <button class="btn btn-sm btn-outline-danger btn-icon" title="Excluir" data-excluir="${emprestimo.id}">
@@ -197,3 +197,4 @@ async function baixarPdf() {
     tratarErro(erro);
   }
 }
+

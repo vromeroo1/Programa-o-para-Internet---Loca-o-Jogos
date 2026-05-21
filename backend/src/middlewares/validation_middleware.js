@@ -61,14 +61,14 @@ const schemas = {
     email: { obrigatorio: true, tipo: 'email', maxLength: 150 },
     senha: { obrigatorio: true, maxLength: 255 },
     telefone: { maxLength: 20 },
-    tipo_usuario: { enum: ['admin', 'cliente'] }
+    tipo_usuario: { enum: ['admin', 'usuario'] }
   },
   usuarioAtualizacao: {
     nome: { maxLength: 120 },
     email: { tipo: 'email', maxLength: 150 },
     senha: { maxLength: 255 },
     telefone: { maxLength: 20 },
-    tipo_usuario: { enum: ['admin', 'cliente'] }
+    tipo_usuario: { enum: ['admin', 'usuario'] }
   },
   categoria: {
     nome: { obrigatorio: true, maxLength: 80 },
@@ -77,7 +77,7 @@ const schemas = {
   jogo: {
     titulo: { obrigatorio: true, maxLength: 140 },
     categoria_id: { obrigatorio: true, tipo: 'numero', min: 1 },
-    tipo_jogo: { obrigatorio: true, enum: ['video_game', 'board_game'] },
+    tipo_jogo: { obrigatorio: true, enum: ['videogame', 'boardgame'] },
     plataforma: { maxLength: 80 },
     valor_aluguel: { obrigatorio: true, tipo: 'numero', min: 0 },
     estoque: { obrigatorio: true, tipo: 'numero', min: 0 }
@@ -85,7 +85,7 @@ const schemas = {
   jogoAtualizacao: {
     titulo: { maxLength: 140 },
     categoria_id: { tipo: 'numero', min: 1 },
-    tipo_jogo: { enum: ['video_game', 'board_game'] },
+    tipo_jogo: { enum: ['videogame', 'boardgame'] },
     plataforma: { maxLength: 80 },
     valor_aluguel: { tipo: 'numero', min: 0 },
     estoque: { tipo: 'numero', min: 0 }
@@ -96,7 +96,7 @@ const schemas = {
   },
   emprestimoAtualizacao: {
     data_prevista_devolucao: { maxLength: 10 },
-    status: { enum: ['ativo', 'atrasado', 'devolvido', 'cancelado'] }
+    status: { enum: ['pendente', 'aprovado', 'retirado', 'devolvido', 'cancelado', 'atrasado'] }
   }
 };
 

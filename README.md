@@ -1,4 +1,4 @@
-# LocaJogos Univap
+# LocaGames Univap
 
 Sistema web full stack para a disciplina **Programacao Para Internet**. O projeto usa **Node.js + Express** no backend, **HTML5 + CSS3 + JavaScript + Bootstrap** no frontend, **MySQL** como banco relacional e **MongoDB** para logs do sistema.
 
@@ -82,11 +82,11 @@ npm start
 http://localhost:3000
 ```
 
-Usuario de teste:
+Usuarios de teste:
 
 ```text
-Email: admin@locajogos.com
-Senha: 123456
+Admin: admin@locadora.com / 123456
+Usuario comum: usuario@locadora.com / 123456
 ```
 
 ## MongoDB
@@ -107,8 +107,11 @@ npm run documentacao:pdf
 ## Funcionalidades
 
 - Login e logout com JWT
-- Rotas protegidas por middleware
+- Rotas protegidas por middleware de autenticacao e permissao
+- Interface diferente para admin e usuario comum
 - CRUD de usuarios, categorias, jogos e emprestimos
+- Catalogo do usuario com abas de videogames e board games
+- Reservas solicitadas pelo usuario comum
 - Upload de imagem dos jogos
 - Criacao e devolucao de emprestimos
 - Atualizacao automatica de estoque
@@ -140,6 +143,7 @@ Rotas:
 ```text
 POST   /auth/login
 POST   /auth/logout
+GET    /auth/me
 GET    /usuarios
 POST   /usuarios
 PUT    /usuarios/:id
@@ -157,6 +161,9 @@ POST   /emprestimos
 PUT    /emprestimos/:id
 POST   /emprestimos/:id/devolver
 DELETE /emprestimos/:id
+POST   /reservas
+GET    /minhas-reservas
+DELETE /minhas-reservas/:id
 GET    /dashboard/resumo
 GET    /exportacao/:entidade
 POST   /importacao/:entidade
@@ -170,7 +177,7 @@ Exemplo de login:
 
 ```json
 {
-  "email": "admin@locajogos.com",
+  "email": "admin@locadora.com",
   "senha": "123456"
 }
 ```
@@ -202,6 +209,8 @@ Todas as respostas JSON seguem o formato:
 ## Banco de Dados
 
 O script `database/banco.sql` cria as tabelas, chaves estrangeiras, indices e dados de teste. O arquivo `database/exemplos_consultas.sql` demonstra consultas com `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `WHERE`, operadores logicos, filtros e `JOIN`.
+
+O arquivo `database/inserts_jogos_completo.sql` contem uma carga separada com 120 jogos reais para popular novamente a tabela `jogos`.
 
 Relacionamentos:
 
