@@ -13,7 +13,7 @@ class EmprestimoDAO extends IDAO {
           WHEN e.status IN ('pendente', 'aprovado', 'retirado') AND e.data_prevista_devolucao < CURDATE() THEN 'atrasado'
           ELSE e.status
         END AS status,
-        e.multa, e.valor_total, e.observacoes,
+        e.dias_aluguel, e.desconto, e.multa, e.valor_total, e.observacoes,
         COALESCE(SUM(i.quantidade), 0) AS total_itens
       FROM emprestimos e
       INNER JOIN usuarios u ON u.id = e.usuario_id
@@ -58,7 +58,7 @@ class EmprestimoDAO extends IDAO {
           WHEN e.status IN ('pendente', 'aprovado', 'retirado') AND e.data_prevista_devolucao < CURDATE() THEN 'atrasado'
           ELSE e.status
         END AS status,
-        e.multa, e.valor_total, e.observacoes
+        e.dias_aluguel, e.desconto, e.multa, e.valor_total, e.observacoes
        FROM emprestimos e
        INNER JOIN usuarios u ON u.id = e.usuario_id
        WHERE e.id = ?`,
@@ -74,12 +74,12 @@ class EmprestimoDAO extends IDAO {
       `SELECT
         i.id, i.emprestimo_id, i.jogo_id, j.titulo AS jogo_titulo,
         j.imagem AS jogo_imagem, i.quantidade, i.valor_unitario,
-        (i.quantidade * i.valor_unitario) AS subtotal
+        (i.quantidade * i.valor_unitario * ?) AS subtotal
        FROM itens_emprestimo i
        INNER JOIN jogos j ON j.id = i.jogo_id
        WHERE i.emprestimo_id = ?
        ORDER BY j.titulo ASC`,
-      [id]
+      [emprestimo.dias_aluguel || 1, id]
     );
 
     return { ...emprestimo, itens };
@@ -104,7 +104,8 @@ class EmprestimoDAO extends IDAO {
         throw new AppError('Usuario informado nao existe.', 404);
       }
 
-      let valorTotal = 0;
+      const diasAluguel = calcularDiasAluguel(new Date(), dados.data_prevista_devolucao);
+      let subtotal = 0;
       const itensProcessados = [];
 
       for (const item of dados.itens) {
@@ -123,7 +124,7 @@ class EmprestimoDAO extends IDAO {
           throw new AppError(`Estoque insuficiente para o jogo ${jogo.titulo}.`, 422);
         }
 
-        valorTotal += Number(jogo.valor_aluguel) * quantidade;
+        subtotal += Number(jogo.valor_aluguel) * quantidade * diasAluguel;
         itensProcessados.push({
           jogo_id: jogo.id,
           quantidade,
@@ -131,14 +132,19 @@ class EmprestimoDAO extends IDAO {
         });
       }
 
+      const desconto = calcularDesconto(diasAluguel, subtotal);
+      const valorTotal = Number((subtotal - desconto).toFixed(2));
+
       const [resultado] = await conexao.execute(
         `INSERT INTO emprestimos
-         (usuario_id, data_prevista_devolucao, status, valor_total, observacoes)
-         VALUES (?, ?, ?, ?, ?)`,
+         (usuario_id, data_prevista_devolucao, status, dias_aluguel, desconto, valor_total, observacoes)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [
           dados.usuario_id,
           dados.data_prevista_devolucao,
           statusInicial,
+          diasAluguel,
+          desconto,
           valorTotal,
           dados.observacoes || null
         ]
@@ -178,11 +184,22 @@ class EmprestimoDAO extends IDAO {
 
     try {
       await conexao.beginTransaction();
-      const { sets, valores } = montarUpdate(dados, [
+      const camposPermitidos = [
         'data_prevista_devolucao',
         'status',
         'observacoes'
-      ]);
+      ];
+      const dadosAtualizacao = { ...dados };
+
+      if (dados.data_prevista_devolucao && antes) {
+        const totais = await recalcularTotais(conexao, id, antes.data_emprestimo, dados.data_prevista_devolucao);
+        dadosAtualizacao.dias_aluguel = totais.diasAluguel;
+        dadosAtualizacao.desconto = totais.desconto;
+        dadosAtualizacao.valor_total = totais.valorTotal + Number(antes.multa || 0);
+        camposPermitidos.push('dias_aluguel', 'desconto', 'valor_total');
+      }
+
+      const { sets, valores } = montarUpdate(dadosAtualizacao, camposPermitidos);
 
       if (sets.length > 0) {
         await conexao.execute(
@@ -370,6 +387,53 @@ function calcularDiasAtraso(dataPrevista) {
 
   const umDia = 1000 * 60 * 60 * 24;
   return Math.ceil((hoje - limite) / umDia);
+}
+
+function calcularDiasAluguel(dataInicio, dataPrevista) {
+  const inicio = normalizarData(dataInicio);
+  const fim = normalizarData(dataPrevista);
+
+  if (!inicio || !fim || fim <= inicio) {
+    return 1;
+  }
+
+  const umDia = 1000 * 60 * 60 * 24;
+  return Math.max(1, Math.ceil((fim - inicio) / umDia));
+}
+
+function normalizarData(data) {
+  if (data instanceof Date) {
+    return new Date(data.getFullYear(), data.getMonth(), data.getDate());
+  }
+
+  const texto = String(data).slice(0, 10);
+  const normalizada = new Date(`${texto}T00:00:00`);
+  return Number.isNaN(normalizada.getTime()) ? null : normalizada;
+}
+
+function calcularDesconto(diasAluguel, subtotal) {
+  if (diasAluguel < 3) {
+    return 0;
+  }
+
+  return Number(Math.min(15, subtotal).toFixed(2));
+}
+
+async function recalcularTotais(conexao, emprestimoId, dataInicio, dataPrevista) {
+  const [itens] = await conexao.execute(
+    'SELECT quantidade, valor_unitario FROM itens_emprestimo WHERE emprestimo_id = ?',
+    [emprestimoId]
+  );
+
+  const diasAluguel = calcularDiasAluguel(dataInicio, dataPrevista);
+  const subtotal = itens.reduce(
+    (total, item) => total + Number(item.quantidade) * Number(item.valor_unitario) * diasAluguel,
+    0
+  );
+  const desconto = calcularDesconto(diasAluguel, subtotal);
+  const valorTotal = Number((subtotal - desconto).toFixed(2));
+
+  return { diasAluguel, desconto, valorTotal };
 }
 
 function statusReservaEstoque(status) {

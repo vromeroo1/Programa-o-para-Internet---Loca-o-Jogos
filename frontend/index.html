@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LocaGames Univap | Login</title>
+  <title>ProGames | Login</title>
   <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="assets/css/style.css" rel="stylesheet">
 </head>
@@ -11,38 +11,38 @@
   <main class="auth-screen">
     <section class="auth-panel app-card">
       <div class="auth-copy">
-        <p class="text-uppercase small mb-2">Programacao Para Internet</p>
-        <h1>LocaGames Univap</h1>
-        <p class="lead mb-4">Locadora academica com catalogo gamer, reservas, painel administrativo, relatorios e logs.</p>
-        <div class="d-flex gap-2 flex-wrap">
-          <span class="badge text-bg-light">MVC</span>
-          <span class="badge text-bg-light">Service Layer</span>
-          <span class="badge text-bg-light">DAO</span>
-          <span class="badge text-bg-light">Bootstrap</span>
+        <div>
+          <div class="brand-mark mb-4 text-white">
+            <span class="brand-symbol">PG</span>
+            <span>ProGames</span>
+          </div>
+          <h1>Aluguel de jogos sem complicacao.</h1>
+          <p class="lead mb-0">Videogames e board games em uma plataforma simples para reservas, estoque e devolucoes.</p>
+        </div>
+        <div class="auth-stripe" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
         </div>
       </div>
       <div class="auth-form">
         <h2 class="h4 mb-1">Acesso ao sistema</h2>
-        <p class="form-help mb-4">Use o usuario de teste criado no script SQL.</p>
+        <p class="form-help mb-4">Entre com seu email e senha cadastrados.</p>
         <form id="formLogin" class="needs-validation" novalidate>
           <div class="mb-3">
             <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" name="email" value="admin@locadora.com" required>
+            <input type="email" class="form-control" id="email" name="email" required>
             <div class="invalid-feedback">Informe um email valido.</div>
           </div>
           <div class="mb-3">
             <label for="senha" class="form-label">Senha</label>
-            <input type="password" class="form-control" id="senha" name="senha" value="123456" required>
+            <input type="password" class="form-control" id="senha" name="senha" required>
             <div class="invalid-feedback">Informe a senha.</div>
           </div>
           <button class="btn btn-dark w-100" type="submit">
             <i data-lucide="log-in"></i>Entrar
           </button>
         </form>
-        <div class="alert alert-info mt-4 mb-0">
-          <strong>Admin:</strong> admin@locadora.com / 123456<br>
-          <strong>Usuario:</strong> usuario@locadora.com / 123456
-        </div>
       </div>
     </section>
   </main>

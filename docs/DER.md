@@ -43,6 +43,8 @@ erDiagram
         date data_prevista_devolucao
         datetime data_devolucao_real
         enum status
+        int dias_aluguel
+        decimal desconto
         decimal multa
         decimal valor_total
         text observacoes

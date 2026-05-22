@@ -9,13 +9,13 @@ WHERE j.estoque > 0
 ORDER BY j.titulo;
 
 -- SELECT com operadores logicos: busca por titulo ou plataforma.
-SELECT id, titulo, plataforma, valor_aluguel, estoque
+SELECT id, titulo, plataforma, valor_aluguel AS valor_diaria, estoque
 FROM jogos
 WHERE (titulo LIKE '%Zelda%' OR plataforma LIKE '%Switch%')
   AND estoque > 0;
 
 -- SELECT com data e relacionamento: emprestimos atrasados.
-SELECT e.id, u.nome AS usuario, e.data_prevista_devolucao, e.status, e.valor_total
+SELECT e.id, u.nome AS usuario, e.data_prevista_devolucao, e.dias_aluguel, e.desconto, e.status, e.valor_total
 FROM emprestimos e
 INNER JOIN usuarios u ON u.id = e.usuario_id
 WHERE e.status IN ('pendente', 'aprovado', 'retirado')

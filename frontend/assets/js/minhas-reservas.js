@@ -22,7 +22,7 @@ function renderizarTabela(reservas) {
       <td>${String(reserva.data_emprestimo).slice(0, 10)}</td>
       <td>${String(reserva.data_prevista_devolucao).slice(0, 10)}</td>
       <td>${badgeStatus(reserva.status)}</td>
-      <td class="text-end">${reserva.total_itens}</td>
+      <td class="text-end">${reserva.dias_aluguel || 1}</td>
       <td class="text-end">${moeda(reserva.valor_total)}</td>
       <td class="text-end">
         <button class="btn btn-sm btn-outline-danger" data-cancelar="${reserva.id}" ${reserva.status !== 'pendente' ? 'disabled' : ''}>

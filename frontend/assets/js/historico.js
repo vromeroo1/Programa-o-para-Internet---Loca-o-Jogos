@@ -15,7 +15,7 @@ async function carregarHistorico() {
         <td>${String(item.data_emprestimo).slice(0, 10)}</td>
         <td>${String(item.data_prevista_devolucao).slice(0, 10)}</td>
         <td>${badgeStatus(item.status)}</td>
-        <td class="text-end">${item.total_itens}</td>
+        <td class="text-end">${item.dias_aluguel || 1}</td>
         <td class="text-end">${moeda(item.valor_total)}</td>
         <td class="text-end text-muted">Consulta</td>
       </tr>

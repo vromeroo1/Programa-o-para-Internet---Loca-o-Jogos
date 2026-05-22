@@ -15,7 +15,7 @@ class ReservaRouter {
   setupRoutes() {
     this.router.use(authMiddleware);
     this.router.use(roleMiddleware('usuario', 'admin'));
-    this.router.post('/reservas', validarCorpo(schemas.emprestimo), asyncHandler(this.controller.criarReserva.bind(this.controller)));
+    this.router.post('/reservas', validarCorpo(schemas.reserva), asyncHandler(this.controller.criarReserva.bind(this.controller)));
     this.router.get('/minhas-reservas', asyncHandler(this.controller.minhasReservas.bind(this.controller)));
     this.router.delete('/minhas-reservas/:id', asyncHandler(this.controller.cancelarMinhaReserva.bind(this.controller)));
   }

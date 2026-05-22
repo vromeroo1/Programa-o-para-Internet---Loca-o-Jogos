@@ -1,4 +1,4 @@
-# LocaGames Univap
+# ProGames
 
 Sistema web full stack para a disciplina **Programacao Para Internet**. O projeto usa **Node.js + Express** no backend, **HTML5 + CSS3 + JavaScript + Bootstrap** no frontend, **MySQL** como banco relacional e **MongoDB** para logs do sistema.
 
@@ -11,7 +11,7 @@ O XAMPP entra apenas como apoio para ligar o MySQL e visualizar o banco pelo php
 - MySQL com prepared statements
 - MongoDB para logs de auditoria
 - JWT para autenticacao
-- Multer para upload de imagens
+- Multer configurado no backend
 - Chart.js no dashboard
 - PDFKit para relatorios em PDF
 - xml2js para exportacao XML
@@ -68,6 +68,12 @@ http://localhost/phpmyadmin
 database/banco.sql
 ```
 
+Se o banco ja existir de uma versao anterior, execute tambem:
+
+```text
+database/migracao_diarias.sql
+```
+
 5. Confira o `.env`. Se seu MySQL tiver senha, preencha `MYSQL_PASSWORD`.
 
 6. Rode a aplicacao:
@@ -93,7 +99,7 @@ Usuario comum: usuario@locadora.com / 123456
 
 Se o MongoDB estiver rodando em `mongodb://127.0.0.1:27017`, os logs serao gravados na colecao `logs` do banco `locacao_jogos_logs`.
 
-Para facilitar apresentacao em sala, o sistema tambem possui fallback local em `backend/logs/logs_fallback.jsonl` caso o MongoDB ainda nao esteja iniciado. Assim a API continua funcionando, mas o ideal para demonstrar o requisito e deixar o MongoDB ligado.
+O sistema tambem possui fallback local em `backend/logs/logs_fallback.jsonl` caso o MongoDB ainda nao esteja iniciado. Assim a API continua funcionando, mas o ideal e deixar o MongoDB ligado para registrar os logs no banco correto.
 
 ## Scripts
 
@@ -112,9 +118,9 @@ npm run documentacao:pdf
 - CRUD de usuarios, categorias, jogos e emprestimos
 - Catalogo do usuario com abas de videogames e board games
 - Reservas solicitadas pelo usuario comum
-- Upload de imagem dos jogos
 - Criacao e devolucao de emprestimos
 - Atualizacao automatica de estoque
+- Cobranca por diaria, com desconto de R$ 15,00 a partir de 3 diarias
 - Calculo de multa por atraso
 - Filtros por titulo, categoria, status, usuario e atrasados
 - Dashboard com indicadores e grafico Chart.js
@@ -195,6 +201,12 @@ Exemplo de emprestimo:
   ]
 }
 ```
+
+Regra de cobranca:
+
+- O campo `valor_aluguel` representa o valor da diaria.
+- O total considera a quantidade de dias entre a criacao do emprestimo e a data prevista de devolucao.
+- A partir de 3 diarias, o sistema aplica desconto fixo de R$ 15,00 no emprestimo.
 
 Todas as respostas JSON seguem o formato:
 

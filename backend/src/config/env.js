@@ -5,7 +5,7 @@ module.exports = {
   port: Number(process.env.PORT || 3000),
   nodeEnv: process.env.NODE_ENV || 'development',
   jwt: {
-    secret: process.env.JWT_SECRET || 'chave_academica_locacao_jogos',
+    secret: process.env.JWT_SECRET || 'chave_progames_local',
     expiresIn: process.env.JWT_EXPIRES_IN || '2h'
   },
   mysql: {

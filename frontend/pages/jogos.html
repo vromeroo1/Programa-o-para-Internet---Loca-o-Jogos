@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Jogos | LocaGames Univap</title>
+  <title>Jogos | ProGames</title>
   <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="../assets/css/style.css" rel="stylesheet">
 </head>
@@ -13,7 +13,6 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
       <div>
         <h1 class="section-title">Acervo de jogos</h1>
-        <p class="section-subtitle">Gestao administrativa separada entre videogames e board games.</p>
       </div>
       <div class="d-flex gap-2">
         <button class="btn btn-outline-dark" id="btnPdfJogos"><i data-lucide="file-text"></i>PDF</button>
@@ -60,7 +59,7 @@
     <section class="app-card p-3">
       <div class="table-responsive">
         <table class="table align-middle">
-          <thead><tr><th>Jogo</th><th>Categoria</th><th>Tipo</th><th>Plataforma</th><th class="text-end">Valor</th><th class="text-end">Estoque</th><th class="text-end">Acoes</th></tr></thead>
+          <thead><tr><th>Jogo</th><th>Categoria</th><th>Tipo</th><th>Plataforma</th><th class="text-end">Diaria</th><th class="text-end">Estoque</th><th class="text-end">Acoes</th></tr></thead>
           <tbody id="tabelaJogos"></tbody>
         </table>
       </div>
@@ -105,7 +104,7 @@
               </select>
             </div>
             <div class="col-md-2">
-              <label class="form-label" for="valor_aluguel">Valor</label>
+              <label class="form-label" for="valor_aluguel">Valor da diaria</label>
               <input type="number" step="0.01" min="0" class="form-control" id="valor_aluguel" name="valor_aluguel" required>
             </div>
             <div class="col-md-2">
@@ -115,11 +114,6 @@
             <div class="col-12">
               <label class="form-label" for="descricao">Descricao</label>
               <textarea class="form-control" id="descricao" name="descricao" rows="3"></textarea>
-            </div>
-            <div class="col-12">
-              <label class="form-label" for="imagem">Imagem do jogo</label>
-              <input type="file" accept="image/*" class="form-control" id="imagem" name="imagem">
-              <div class="form-text">Upload opcional para demonstrar Multer.</div>
             </div>
           </div>
         </div>

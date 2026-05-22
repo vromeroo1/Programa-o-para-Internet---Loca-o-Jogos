@@ -1,8 +1,8 @@
-# Documentacao do Projeto - LocaGames Univap
+# Documentacao do Projeto - ProGames
 
 ## Tema e objetivo
 
-O tema escolhido foi um Sistema Web de Locadora de Jogos, atendendo video games e board games. O objetivo e permitir o cadastro de usuarios, categorias e jogos, alem do controle de emprestimos, devolucoes, estoque, relatorios, importacao/exportacao de dados e logs.
+O tema escolhido foi uma locadora de jogos chamada ProGames, atendendo video games e board games. O objetivo e permitir o cadastro de usuarios, categorias e jogos, alem do controle de emprestimos, devolucoes, estoque, relatorios, importacao/exportacao de dados e logs.
 
 ## Regras de negocio principais
 
@@ -12,6 +12,7 @@ O tema escolhido foi um Sistema Web de Locadora de Jogos, atendendo video games 
 - A relacao N:N entre emprestimos e jogos e resolvida pela tabela `itens_emprestimo`.
 - Ao criar um emprestimo, o estoque dos jogos e reduzido automaticamente.
 - Ao devolver um emprestimo, o estoque e restaurado automaticamente.
+- O valor do aluguel e calculado por diaria e recebe desconto de R$ 15,00 a partir de 3 diarias.
 - Se a devolucao ocorrer apos a data prevista, a multa e calculada em R$ 2,00 por dia e por item.
 - Nao e permitido emprestar jogo sem estoque suficiente.
 - As rotas privadas exigem token JWT.
@@ -53,7 +54,7 @@ Principais services:
 - `AuthService`: login, logout, bcrypt e JWT.
 - `UsuarioService`: CRUD de usuarios e hash de senha.
 - `CategoriaService`: CRUD de categorias.
-- `JogoService`: CRUD de jogos e upload de imagem.
+- `JogoService`: CRUD de jogos e validacao de categoria.
 - `EmprestimoService`: criacao, devolucao, multa e regras de estoque.
 - `DashboardService`: dados agregados para graficos.
 - `ExportacaoService`: exportacao/importacao JSON.
@@ -104,7 +105,7 @@ Eventos registrados:
 - exclusao de dados
 - erros e excecoes
 
-Quando o MongoDB nao estiver iniciado, o projeto grava uma copia temporaria em `backend/logs/logs_fallback.jsonl` para nao interromper a demonstracao. Para atender ao requisito principal, basta iniciar o MongoDB e a aplicacao passa a registrar na colecao `logs`.
+Quando o MongoDB nao estiver iniciado, o projeto grava uma copia temporaria em `backend/logs/logs_fallback.jsonl`. Para atender ao requisito principal, basta iniciar o MongoDB e a aplicacao passa a registrar na colecao `logs`.
 
 ## Exportacao XML
 

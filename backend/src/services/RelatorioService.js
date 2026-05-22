@@ -12,7 +12,7 @@ class RelatorioService {
     const jogos = await this.jogoDAO.listar(filtros);
     return gerarPdfBuffer((doc) => {
       cabecalho(doc, 'Relatorio de Jogos', usuario);
-      linha(doc, ['Titulo', 'Categoria', 'Tipo', 'Plataforma', 'Estoque', 'Valor'], true);
+      linha(doc, ['Titulo', 'Categoria', 'Tipo', 'Plataforma', 'Estoque', 'Diaria'], true);
       jogos.forEach((jogo) => {
         linha(doc, [
           jogo.titulo,
@@ -33,14 +33,14 @@ class RelatorioService {
 
     return gerarPdfBuffer((doc) => {
       cabecalho(doc, 'Relatorio de Emprestimos', usuario);
-      linha(doc, ['ID', 'Usuario', 'Prevista', 'Status', 'Itens', 'Valor'], true);
+      linha(doc, ['ID', 'Usuario', 'Dias', 'Status', 'Desc.', 'Total'], true);
       emprestimos.forEach((emprestimo) => {
         linha(doc, [
           String(emprestimo.id),
           emprestimo.usuario_nome,
-          String(emprestimo.data_prevista_devolucao).slice(0, 10),
+          String(emprestimo.dias_aluguel || 1),
           emprestimo.status,
-          String(emprestimo.total_itens),
+          `R$ ${Number(emprestimo.desconto || 0).toFixed(2)}`,
           `R$ ${Number(emprestimo.valor_total).toFixed(2)}`
         ]);
       });

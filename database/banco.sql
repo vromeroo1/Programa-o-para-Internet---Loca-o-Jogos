@@ -1,4 +1,4 @@
--- Banco principal do Sistema Web de Locadora de Jogos
+-- Banco principal do ProGames
 -- Disciplina: Programacao Para Internet
 -- Senha dos usuarios de teste: 123456
 -- Total de jogos cadastrados no seed: 120
@@ -59,6 +59,8 @@ CREATE TABLE emprestimos (
   data_prevista_devolucao DATE NOT NULL,
   data_devolucao_real DATETIME NULL,
   status ENUM('pendente', 'aprovado', 'retirado', 'devolvido', 'cancelado', 'atrasado') NOT NULL DEFAULT 'pendente',
+  dias_aluguel INT NOT NULL DEFAULT 1,
+  desconto DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   multa DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   valor_total DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   observacoes TEXT,
@@ -68,6 +70,8 @@ CREATE TABLE emprestimos (
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
     ON UPDATE CASCADE
     ON DELETE RESTRICT,
+  CONSTRAINT ck_emprestimos_dias CHECK (dias_aluguel >= 1),
+  CONSTRAINT ck_emprestimos_desconto CHECK (desconto >= 0),
   CONSTRAINT ck_emprestimos_multa CHECK (multa >= 0),
   CONSTRAINT ck_emprestimos_valor CHECK (valor_total >= 0)
 ) ENGINE=InnoDB;
@@ -250,10 +254,10 @@ VALUES
 ('No Man''s Sky', 'Exploracao espacial procedural com sobrevivencia.', 15, 'videogame', 'Nintendo Switch', 13.90, 3, 'no_man_s_sky_nintendo_switch.jpg'),
 ('Tetris Effect Connected', 'Puzzle musical com modos solo e multiplayer.', 13, 'videogame', 'Nintendo Switch', 8.90, 4, 'tetris_effect_connected_nintendo_switch.jpg');
 
-INSERT INTO emprestimos (usuario_id, data_emprestimo, data_prevista_devolucao, data_devolucao_real, status, multa, valor_total, observacoes) VALUES
-(2, '2026-05-12 14:20:00', '2026-05-26', NULL, 'pendente', 0.00, 19.90, 'Reserva criada pelo usuario comum.'),
-(3, '2026-05-01 09:40:00', '2026-05-08', '2026-05-07 17:30:00', 'devolvido', 0.00, 28.80, 'Devolvido dentro do prazo.'),
-(2, '2026-05-02 10:00:00', '2026-05-10', NULL, 'retirado', 0.00, 17.90, 'Emprestimo retirado e aguardando devolucao.');
+INSERT INTO emprestimos (usuario_id, data_emprestimo, data_prevista_devolucao, data_devolucao_real, status, dias_aluguel, desconto, multa, valor_total, observacoes) VALUES
+(2, '2026-05-12 14:20:00', '2026-05-26', NULL, 'pendente', 14, 15.00, 0.00, 263.60, 'Reserva criada pelo usuario comum.'),
+(3, '2026-05-01 09:40:00', '2026-05-08', '2026-05-07 17:30:00', 'devolvido', 7, 15.00, 0.00, 186.60, 'Devolvido dentro do prazo.'),
+(2, '2026-05-02 10:00:00', '2026-05-10', NULL, 'retirado', 8, 15.00, 0.00, 128.20, 'Emprestimo retirado e aguardando devolucao.');
 
 INSERT INTO itens_emprestimo (emprestimo_id, jogo_id, quantidade, valor_unitario) VALUES
 (1, 1, 1, 19.90),

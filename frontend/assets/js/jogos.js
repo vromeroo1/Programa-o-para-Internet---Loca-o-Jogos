@@ -73,15 +73,13 @@ async function carregarJogos() {
     tbody.innerHTML = resposta.dados.map((jogo) => `
       <tr>
         <td>
-          <div class="d-flex align-items-center gap-2">
-            ${jogo.imagem ? `<img class="game-cover" src="${jogo.imagem}" alt="">` : '<div class="game-cover"></div>'}
-            <div><div class="fw-semibold">${jogo.titulo}</div><small class="text-muted">${(jogo.descricao || '').slice(0, 70)}</small></div>
-          </div>
+          <div class="fw-semibold">${jogo.titulo}</div>
+          <small class="text-muted">${(jogo.descricao || '').slice(0, 80)}</small>
         </td>
         <td>${jogo.categoria_nome}</td>
         <td>${textoTipoJogo(jogo.tipo_jogo)}</td>
         <td>${jogo.plataforma || '-'}</td>
-        <td class="text-end">${moeda(jogo.valor_aluguel)}</td>
+        <td class="text-end">${moeda(jogo.valor_aluguel)}/dia</td>
         <td class="text-end">${jogo.estoque}</td>
         <td class="text-end">
           <button class="btn btn-sm btn-outline-dark btn-icon" title="Editar" data-editar="${jogo.id}">
@@ -143,8 +141,6 @@ function montarFormData() {
   ['titulo', 'categoria_id', 'tipo_jogo', 'plataforma', 'valor_aluguel', 'estoque', 'descricao'].forEach((campo) => {
     formData.append(campo, document.getElementById(campo).value);
   });
-  const arquivo = document.getElementById('imagem').files[0];
-  if (arquivo) formData.append('imagem', arquivo);
   return formData;
 }
 

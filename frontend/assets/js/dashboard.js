@@ -45,7 +45,7 @@ function renderizarGrafico(jogos) {
       datasets: [{
         label: 'Quantidade alugada',
         data: jogos.map((jogo) => jogo.total_alugado),
-        backgroundColor: ['#0f766e', '#b7791f', '#9f1239', '#334155', '#2563eb', '#7c2d12']
+        backgroundColor: ['#0f9f8e', '#ef7d4f', '#d9a441', '#22252c', '#57b8a9', '#b86b47']
       }]
     },
     options: {

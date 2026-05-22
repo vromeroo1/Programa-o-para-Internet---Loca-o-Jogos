@@ -23,38 +23,41 @@ export function montarNavbar(ativo) {
   ];
 
   alvo.innerHTML = `
-    <nav class="navbar navbar-expand-xl app-navbar">
-      <div class="container-fluid">
-        <a class="navbar-brand brand-mark" href="${admin ? 'dashboard.html' : 'catalogo.html'}">
-          <span class="brand-symbol">LG</span>
-          <span>LocaGames Univap</span>
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="menuPrincipal">
-          <ul class="navbar-nav me-auto mb-2 mb-xl-0">
-            ${itens.map(([id, label, icon, href]) => `
-              <li class="nav-item">
-                <a class="nav-link ${ativo === id ? 'active' : ''}" href="${href}">
-                  <i data-lucide="${icon}"></i>${label}
-                </a>
-              </li>
-            `).join('')}
-          </ul>
-          <div class="user-chip">
-            <span>${usuario?.nome || usuario?.email || ''}</span>
-            <small>${admin ? 'Administrador' : 'Usuario'}</small>
-          </div>
-          <button class="btn btn-ghost btn-sm" id="btnLogout">
-            <i data-lucide="log-out"></i>Sair
-          </button>
+    <aside class="app-sidebar">
+      <a class="brand-mark" href="${admin ? 'dashboard.html' : 'catalogo.html'}">
+        <span class="brand-symbol">PG</span>
+        <span>ProGames</span>
+      </a>
+      <span class="sidebar-role">${admin ? 'Painel administrativo' : 'Area do usuario'}</span>
+      <nav class="sidebar-nav" aria-label="Menu principal">
+        ${itens.map(([id, label, icon, href]) => `
+          <a class="nav-link ${ativo === id ? 'active' : ''}" href="${href}">
+            <i data-lucide="${icon}"></i>${label}
+          </a>
+        `).join('')}
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-chip">
+          <span>${usuario?.nome || usuario?.email || ''}</span>
+          <small>${admin ? 'Administrador' : 'Usuario'}</small>
         </div>
+        <button class="btn btn-ghost btn-sm w-100" data-logout>
+          <i data-lucide="log-out"></i>Sair
+        </button>
       </div>
-    </nav>
+    </aside>
+    <header class="mobile-bar">
+      <a class="brand-mark" href="${admin ? 'dashboard.html' : 'catalogo.html'}">
+        <span class="brand-symbol">PG</span>
+        <span>ProGames</span>
+      </a>
+      <button class="btn btn-ghost btn-sm" data-logout>
+        <i data-lucide="log-out"></i>Sair
+      </button>
+    </header>
   `;
 
-  document.getElementById('btnLogout').addEventListener('click', async () => {
+  document.querySelectorAll('[data-logout]').forEach((botao) => botao.addEventListener('click', async () => {
     try {
       await apiFetch('/auth/logout', { method: 'POST' });
     } catch (erro) {
@@ -62,7 +65,7 @@ export function montarNavbar(ativo) {
     }
     limparSessao();
     window.location.href = caminhoIndex();
-  });
+  }));
 
   atualizarIcones();
 }

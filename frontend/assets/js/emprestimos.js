@@ -102,7 +102,8 @@ async function carregarEmprestimos() {
         <td>${String(emprestimo.data_emprestimo).slice(0, 10)}</td>
         <td>${String(emprestimo.data_prevista_devolucao).slice(0, 10)}</td>
         <td>${badgeStatus(emprestimo.status)}</td>
-        <td class="text-end">${emprestimo.total_itens}</td>
+        <td class="text-end">${emprestimo.dias_aluguel || 1}</td>
+        <td class="text-end">${moeda(emprestimo.desconto || 0)}</td>
         <td class="text-end">${moeda(emprestimo.valor_total)}</td>
         <td class="text-end">
           <button class="btn btn-sm btn-outline-dark btn-icon" title="Editar" data-editar="${emprestimo.id}">
@@ -116,7 +117,7 @@ async function carregarEmprestimos() {
           </button>
         </td>
       </tr>
-    `).join('') || '<tr><td colspan="8" class="text-center text-muted">Nenhum emprestimo encontrado.</td></tr>';
+    `).join('') || '<tr><td colspan="9" class="text-center text-muted">Nenhum emprestimo encontrado.</td></tr>';
 
     tbody.querySelectorAll('[data-editar]').forEach((botao) => botao.addEventListener('click', () => editar(botao.dataset.editar)));
     tbody.querySelectorAll('[data-devolver]').forEach((botao) => botao.addEventListener('click', () => devolver(botao.dataset.devolver)));
@@ -131,6 +132,9 @@ function abrirModalNovo() {
   formEmprestimo.reset();
   formEmprestimo.classList.remove('was-validated');
   document.getElementById('listaItens').innerHTML = '';
+  const data = new Date();
+  data.setDate(data.getDate() + 3);
+  document.getElementById('data_prevista_devolucao').value = formatarDataInput(data);
   adicionarItem();
   modalEmprestimo.show();
   atualizarIcones();
@@ -142,7 +146,7 @@ function adicionarItem() {
   div.className = 'item-row';
   div.innerHTML = `
     <select class="form-select" data-jogo required>
-      ${jogos.map((jogo) => `<option value="${jogo.id}">${jogo.titulo} - estoque ${jogo.estoque}</option>`).join('')}
+      ${jogos.map((jogo) => `<option value="${jogo.id}">${jogo.titulo} - ${moeda(jogo.valor_aluguel)}/dia - estoque ${jogo.estoque}</option>`).join('')}
     </select>
     <input type="number" class="form-control" data-quantidade min="1" value="1" required>
     <button type="button" class="btn btn-outline-danger btn-icon" title="Remover item"><i data-lucide="x"></i></button>
@@ -196,5 +200,12 @@ async function baixarPdf() {
   } catch (erro) {
     tratarErro(erro);
   }
+}
+
+function formatarDataInput(data) {
+  const ano = data.getFullYear();
+  const mes = String(data.getMonth() + 1).padStart(2, '0');
+  const dia = String(data.getDate()).padStart(2, '0');
+  return `${ano}-${mes}-${dia}`;
 }
 

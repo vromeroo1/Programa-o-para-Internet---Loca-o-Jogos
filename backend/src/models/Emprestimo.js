@@ -6,6 +6,8 @@ class Emprestimo {
     data_prevista_devolucao,
     data_devolucao_real,
     status,
+    dias_aluguel,
+    desconto,
     multa,
     valor_total,
     observacoes
@@ -16,6 +18,8 @@ class Emprestimo {
     this.data_prevista_devolucao = data_prevista_devolucao;
     this.data_devolucao_real = data_devolucao_real;
     this.status = status;
+    this.dias_aluguel = dias_aluguel;
+    this.desconto = desconto;
     this.multa = multa;
     this.valor_total = valor_total;
     this.observacoes = observacoes;

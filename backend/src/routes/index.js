@@ -13,8 +13,8 @@ const { sucesso } = require('../utils/resposta');
 
 const router = express.Router();
 
-router.get('/health', (req, res) => sucesso(res, 'API da Locacao de Jogos esta funcionando.', {
-  nome: 'Locacao Jogos',
+router.get('/health', (req, res) => sucesso(res, 'API da ProGames esta funcionando.', {
+  nome: 'ProGames',
   versao: '1.0.0'
 }));
 

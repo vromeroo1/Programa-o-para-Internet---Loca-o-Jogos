@@ -1,7 +1,7 @@
 {
   "name": "locacao-jogos",
   "version": "1.0.0",
-  "description": "Sistema Web de Locadora de Jogos para a disciplina Programacao Para Internet.",
+  "description": "ProGames, sistema web de locadora de jogos.",
   "main": "backend/src/server.js",
   "scripts": {
     "dev": "node --watch backend/src/server.js",
@@ -16,7 +16,7 @@
     "mvc",
     "locadora"
   ],
-  "author": "Projeto academico UNIVAP",
+  "author": "Victor Romero",
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",

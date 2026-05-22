@@ -94,6 +94,9 @@ const schemas = {
     usuario_id: { obrigatorio: true, tipo: 'numero', min: 1 },
     data_prevista_devolucao: { obrigatorio: true, maxLength: 10 }
   },
+  reserva: {
+    data_prevista_devolucao: { obrigatorio: true, maxLength: 10 }
+  },
   emprestimoAtualizacao: {
     data_prevista_devolucao: { maxLength: 10 },
     status: { enum: ['pendente', 'aprovado', 'retirado', 'devolvido', 'cancelado', 'atrasado'] }

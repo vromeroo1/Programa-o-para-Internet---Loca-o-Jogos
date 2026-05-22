@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Catalogo | LocaGames Univap</title>
+  <title>Catalogo | ProGames</title>
   <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="../assets/css/style.css" rel="stylesheet">
 </head>
@@ -13,7 +13,6 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
       <div>
         <h1 class="section-title">Catalogo da locadora</h1>
-        <p class="section-subtitle">Escolha videogames ou board games disponiveis para reservar.</p>
       </div>
       <div class="pill-tabs" role="group" aria-label="Tipo de jogo">
         <button class="btn btn-sm active" type="button" data-tipo-tab="">Todos</button>
@@ -61,10 +60,12 @@
         </div>
         <div class="modal-body">
           <input type="hidden" id="jogoReservaId">
+          <input type="hidden" id="valorDiariaReserva">
           <p class="mb-3" id="jogoReservaTitulo"></p>
           <label class="form-label" for="dataPrevista">Data prevista de devolucao</label>
           <input type="date" class="form-control" id="dataPrevista" required>
           <div class="invalid-feedback">Informe a data prevista.</div>
+          <div class="app-card p-3 mt-3" id="resumoReserva"></div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
